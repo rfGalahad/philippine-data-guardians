@@ -1,0 +1,76 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap");
+@import "tailwindcss";
+
+:root {
+  --color-bg:        #020d1c;
+  --color-surface:   #071a35;
+  --color-surface-2: #0c2444;
+  --color-border:    #123060;
+
+  --color-surface-light: #f0f4fa;
+  --color-surface-light-2: #e8eef7;
+
+  --color-accent:       #F7CF13;
+  --color-accent-2:     #FFA000;
+  --color-accent-hover: #ffd93d;
+  --color-accent-dim:   rgba(247, 207, 19, 0.15);
+
+  --color-text-primary:   #053261;
+  --color-text-secondary: #7a9cc4;
+  --color-text-muted:     #4a6a94;
+
+  --color-field-bg:    #fff;
+  --color-field-border: #c8d2e0;
+  --color-field-text:  #0c2444;
+  --color-field-placeholder: #7a8699;
+
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body:    "DM Sans", "Helvetica Neue", sans-serif;
+
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-full: 9999px;
+
+  --shadow-glow: 0 0 40px rgba(108, 99, 255, 0.18);
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-surface-light: var(--color-surface-light);
+  --color-surface-light-2: var(--color-surface-light-2);
+  --color-border: var(--color-border);
+  --color-accent: var(--color-accent);
+  --color-accent-2: var(--color-accent-2);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-dim: var(--color-accent-dim);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-field-bg: var(--color-field-bg);
+  --color-field-border: var(--color-field-border);
+  --color-field-text: var(--color-field-text);
+  --color-field-placeholder: var(--color-field-placeholder);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-full: var(--radius-full);
+  --shadow-glow: var(--shadow-glow);
+}
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body, #root { height: 100%; }
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+}
