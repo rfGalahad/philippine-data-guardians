@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { fetchMemberDetail } from "@/lib/supabase/members";
-import type { MemberDetail } from "@/lib/supabase/types";
+import type { MemberDetail } from "@/lib/supabase/members";
 
 export function useMemberDetail() {
 

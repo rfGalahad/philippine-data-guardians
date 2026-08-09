@@ -20,14 +20,14 @@ interface AddMemberContentProps {
 // CONSTANTS
 //-----------------------------------------------------------
 
-const STEPS: string[] = [
-  'Consent Form',
-  'Personal Information',
-  'Address Details',
-  'Upload Picture',
-  'Membership Type',
-  'Review'
-];
+// const STEPS: string[] = [
+//   'Consent Form',
+//   'Personal Information',
+//   'Address Details',
+//   'Upload Picture',
+//   'Membership Type',
+//   'Review'
+// ];
 
 
 //-----------------------------------------------------------
@@ -36,24 +36,24 @@ const STEPS: string[] = [
 
 export const AddMemberContent = ({ onClose }: AddMemberContentProps ) => {
 
-  const [activeStep, setActiveStep] = useState<number>(0);
+  // const [activeStep, setActiveStep] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
 
-  const handleStepClick = (index: number): void => {
-    if (index < activeStep) {
-      setActiveStep(index);
-      setPage(index + 1);
-    }
-  };
+  // const handleStepClick = (index: number): void => {
+  //   if (index < activeStep) {
+  //     setActiveStep(index);
+  //     setPage(index + 1);
+  //   }
+  // };
 
   const handleBack = (): void => {
-    setPage((prev) => Math.max(0, prev - 1));
-    setActiveStep((prev) => Math.max(0, prev - 1));
+    setPage((prev) => Math.max(0, prev -   1));
+    // setActiveStep((prev) => Math.max(0, prev - 1));
   };
 
   const handleNext = (): void => {
     setPage((prev) => prev + 1);
-    setActiveStep((prev) => Math.min(STEPS.length - 1, prev + 1));
+    // setActiveStep((prev) => Math.min(STEPS.length - 1, prev + 1));
   };
 
   return (
