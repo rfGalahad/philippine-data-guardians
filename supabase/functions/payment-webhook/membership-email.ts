@@ -1,7 +1,8 @@
 export function membershipEmail(
   memberName: string,
+  memberEmail: string,
+  memberId?: string,
   logoUrl?: string,
-  membershipId?: string
 ): string {
   return `
 <!DOCTYPE html>
@@ -47,8 +48,8 @@ export function membershipEmail(
                 You're officially a member!
               </h1>
               <p style="font-size:15px;color:#64748b;margin:0 0 0;line-height:1.6;">
-                Hi <strong>${memberName}</strong>, your registration as a Member of <strong>Philippine Data Guardians</strong> has been confirmed.
-                ${membershipId ? ` Your membership ID is <strong>${membershipId}</strong>.` : ""}
+                ${memberName ? `Hi <strong>${memberName}</strong>, your` : "Your"} registration as a Member of <strong>Philippine Data Guardians</strong> has been confirmed.
+                ${memberId ? ` Your membership ID is <strong>${memberId}</strong>.` : ""}
               </p>
 
               <!-- Divider -->

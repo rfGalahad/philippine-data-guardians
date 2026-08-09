@@ -13,6 +13,7 @@ export function useMembers() {
   const [error, setError] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
   const [deleting, setDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -23,10 +24,19 @@ export function useMembers() {
     return () => { cancelled = true; };
   }, []);
 
-  const removeSelected = useCallback(async () => {
+  const requestDelete = useCallback(() => {
+    if (selectedIds.size === 0) return;
+    setConfirmOpen(true);
+  }, [selectedIds]);
+
+  const cancelDelete = useCallback(() => {
+    if (deleting) return; 
+    setConfirmOpen(false);
+  }, [deleting]);
+
+  const confirmDelete = useCallback(async () => {
     if (selectedIds.size === 0) return;
     const count = selectedIds.size;
-    if (!window.confirm(`Delete ${count} member${count > 1 ? "s" : ""}? This can't be undone.`)) return;
 
     setDeleting(true);
     try {
@@ -35,22 +45,26 @@ export function useMembers() {
         toast.success(`Successfully deleted ${count} member(s).`);
         setMembers((prev) => prev.filter((m) => !selectedIds.has(m.memberId)));
         setSelectedIds(new Set());
-      } 
+      }
     } catch (err: unknown) {
-      toast.error(`Failed deleted ${count} member(s).`);
-      console.error(`Failed to delete ${count} member(s):`, err)
+      toast.error(`Failed to delete ${count} member(s).`);
+      console.error(`Failed to delete ${count} member(s):`, err);
     } finally {
       setDeleting(false);
+      setConfirmOpen(false);
     }
   }, [selectedIds, toast]);
 
-  return { 
-    members, 
-    loading, 
-    error, 
-    selectedIds, 
-    setSelectedIds, 
-    deleting, 
-    removeSelected 
+  return {
+    members,
+    loading,
+    error,
+    selectedIds,
+    setSelectedIds,
+    deleting,
+    confirmOpen,
+    requestDelete,
+    cancelDelete,
+    confirmDelete,
   };
 }

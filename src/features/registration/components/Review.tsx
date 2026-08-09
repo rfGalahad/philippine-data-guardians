@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { CheckCircle } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 
 import { createCheckout } from "@/features/checkout/api/createCheckout";
 import { useToast } from "@/components/Toast";
+import { getFullAddress, getFullName } from "@/utils/string";
+import { useObjectUrl } from "@/hooks/useObjectUrl";
 
 import { useSubmitRegistration } from "../hooks/useSubmitRegistration";
 import { FormHeader } from "./FormHeader";
@@ -16,9 +18,11 @@ import { FormHeader } from "./FormHeader";
 interface ReviewProps {
   handleBack: () => void;
 }
+
 interface SectionLabelProps {
   children: React.ReactNode;
 }
+
 interface InformationFieldProps {
   label: string;
   value?: string | null;
@@ -76,45 +80,19 @@ export const Review = ({ handleBack }: ReviewProps) => {
     uploadPicture 
   } = formData;
 
-  const previewUrl = useMemo(() => {
-    if (!uploadPicture) return undefined;
-    if (typeof uploadPicture === "string") return uploadPicture;
-    return URL.createObjectURL(uploadPicture);
-  }, [uploadPicture]);
-
-  useEffect(() => {
-    if (!previewUrl || typeof uploadPicture === "string") return;
-    return () => {
-      URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl, uploadPicture]);
-
-  const fullName = [
-    personalInfo.firstName,
-    personalInfo.middleName,
-    personalInfo.lastName,
-    personalInfo.suffix,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const fullAddress = [
-    addressDetails.houseNumber,
-    addressDetails.street,
-    addressDetails.barangayName,
-    addressDetails.cityMunicipalityName,
-    addressDetails.provinceName,
-  ]
-    .filter(Boolean)
-    .join(", ");
-
+  const isFile = uploadPicture instanceof File;
+  const objectUrl = useObjectUrl(isFile ? uploadPicture : null);  
+  const previewUrl = isFile ? objectUrl ?? undefined : (uploadPicture as string | undefined);
+    
+  const fullName = getFullName(personalInfo);
+  const fullAddress = getFullAddress(addressDetails);
   const contactNumber = personalInfo.contactNumber;
   const membershipTier = membershipType.tier;
 
   const handleCheckout = async () => {
     
     const registration = await submitForm();
-    console.log("registration result:", registration);
+
     if (!registration) return;
  
     setCheckoutLoading(true);

@@ -7,6 +7,7 @@ import TableFilters, { type FilterConfig } from "@/components/CustomTable/TableF
 import TablePagination from "@/components/CustomTable/TablePagination";
 import TableActions, { type TableAction } from "@/components/CustomTable/TableActions";
 import SlideOverPanel from "@/components/SlideOverPanel";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 import type { MemberListRow } from "@/lib/supabase/members";
 
@@ -26,14 +27,17 @@ const PAGE_SIZE = 10;
 
 export default function PDGMembersPage() {
 
-  const { 
-    members, 
-    loading, 
-    error, 
-    selectedIds, 
-    setSelectedIds, 
-    deleting, 
-    removeSelected 
+  const {
+    members,
+    loading,
+    error,
+    selectedIds,
+    setSelectedIds,
+    deleting,
+    confirmOpen,
+    requestDelete,
+    cancelDelete,
+    confirmDelete,
   } = useMembers();
   
   const detailPanel = useMemberDetail();
@@ -42,6 +46,7 @@ export default function PDGMembersPage() {
   // DATA TABLE
   const columns = useMemo(() => buildMemberColumns(detailPanel.open), [detailPanel.open]);
 
+  // TABLE SORT
   const getSortValue = useMemo(() => {
     const map = new Map(columns.map((c) => [c.key, c]));
     return (row: MemberListRow, key: string) => {
@@ -104,13 +109,12 @@ export default function PDGMembersPage() {
         : `Delete (${selectedIds.size})`, 
       icon: <Trash2 size={14} />, 
       variant: "danger", 
-      onClick: removeSelected, 
+      onClick: requestDelete, 
       disabled: deleting 
     },
   ];
 
-  const activeCount = 
-    members.filter((m) => m.subscriptionStatus === "active").length;
+  const activeCount = members.filter((m) => m.subscriptionStatus === "active").length;
 
   return (
     <div className="w-full px-8 py-8">
@@ -173,6 +177,17 @@ export default function PDGMembersPage() {
         totalItems={query.filtered.length}
         onPageChange={query.setPage} 
         className="mt-4 rounded-md border border-field-border" 
+      />
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={(open) => !open && cancelDelete()}
+        onConfirm={confirmDelete}
+        loading={deleting}
+        variant="danger"
+        title={`Delete ${selectedIds.size} member${selectedIds.size > 1 ? "s" : ""}?`}
+        description={`Do you want to delete ${selectedIds.size} member${selectedIds.size > 1 ? "s" : ""}? This can't be undone.`}
+        confirmLabel="Delete"
       />
 
       {/* MEMBER DETAILS PANEL */}

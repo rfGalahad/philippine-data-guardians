@@ -1,5 +1,5 @@
 import { CONFIG } from "./config.ts";
-import { log, safeEqual } from "./utils.ts";
+import { safeEqual } from "./utils/helper.ts";
 
 //-----------------------------------------------------------
 // CONSTANTS

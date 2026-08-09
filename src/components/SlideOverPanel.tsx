@@ -27,7 +27,7 @@ export default function SlideOverPanel({
   loadingText = "Loading…",
   error = null,
   children,
-  widthClassName = "max-w-md",
+  widthClassName = "max-w-lg",
 }: SlideOverPanelProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -95,7 +95,7 @@ export default function SlideOverPanel({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="flex-1 overflow-y-auto scrollbar-subtle px-6 py-5">
           {loading && (
             <div className="flex items-center gap-2.5 py-8 text-text-secondary">
               <svg

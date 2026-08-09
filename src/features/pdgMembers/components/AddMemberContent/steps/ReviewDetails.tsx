@@ -7,6 +7,8 @@ import { useToast } from "@/components/Toast";
 import { getPhotoUrl, getPlanName } from "@/features/registration/utils/helper";
 import { createRegistrationPayload } from "@/features/registration/utils/create-registration-payload";
 
+import { getFullAddress, getFullName } from "@/utils/string";
+
 import { registerMember } from "@/lib/supabase/members";
 import { getPlanByTierName } from "@/lib/supabase/plan";
 import { removeMemberPhoto } from "@/lib/supabase/member-photos";
@@ -139,26 +141,9 @@ export const ReviewDetails = ({
   const isFile = uploadPicture instanceof File;
   const objectUrl = useObjectUrl(isFile ? uploadPicture : null);  
   const previewUrl = isFile ? objectUrl ?? undefined : (uploadPicture as string | undefined);
-
-  const fullName = [
-    personalInfo.firstName,
-    personalInfo.middleName,
-    personalInfo.lastName,
-    personalInfo.suffix,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const fullAddress = [
-    addressDetails.houseNumber,
-    addressDetails.street,
-    addressDetails.barangayName,
-    addressDetails.cityMunicipalityName,
-    addressDetails.provinceName,
-  ]
-    .filter(Boolean)
-    .join(", ");
-
+  
+  const fullName = getFullName(personalInfo);
+  const fullAddress = getFullAddress(addressDetails);
   const contactNumber = personalInfo.contactNumber;
   const membershipTier = membershipPlan.plan;
 

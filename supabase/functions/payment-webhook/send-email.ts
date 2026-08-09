@@ -1,6 +1,6 @@
 import { CONFIG } from "./config.ts";
-import { subscriptionEmail } from "./subscription-email.ts";
-import { membershipEmail } from "./membership-email.ts";
+import { subscriptionEmail } from "./email/subscription-email.ts";
+import { membershipEmail } from "./email/membership-email.ts";
 
 //-----------------------------------------------------------
 // CONSTANTS
@@ -17,6 +17,8 @@ type SendEmailInput =
   | {
       subscriptionType: "membership";
       email: string;
+      memberName: string;
+      membershipId?: string;
     }
   | {
       subscriptionType?: undefined;
@@ -63,9 +65,14 @@ export default async function sendEmail(input: SendEmailInput) {
 
   if (input.subscriptionType === "membership") {
     await sendViaResend(
-      input.email,
-      `You're officially a PDG member!`,
-      membershipEmail(input.email, CONFIG.logoUrl, ""),
+      input.email, // to
+      `You're officially a PDG member!`, // subject
+      membershipEmail(
+        input.name,
+        input.email, 
+        input.memberId,
+        CONFIG.logoUrl 
+      ),
     );
     return;
   }
@@ -79,6 +86,11 @@ export default async function sendEmail(input: SendEmailInput) {
   await sendViaResend(
     email,
     subject,
-    subscriptionEmail(planName, actionLink, CONFIG.logoUrl, isExisting),
+    subscriptionEmail(
+      planName, 
+      actionLink, 
+      CONFIG.logoUrl, 
+      isExisting
+    ),
   );
 }

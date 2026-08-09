@@ -4,7 +4,7 @@ import { withSupabase } from "@supabase/server";
 //-----------------------------------------------------------
 // CONSTANTS
 //-----------------------------------------------------------
-
+ 
 const PAYMONGO_SECRET_KEY = Deno.env.get("PAYMONGO_SECRET_KEY")!;
 const PAYMONGO_API_URL = "https://api.paymongo.com/v1/checkout_sessions";
 
@@ -81,7 +81,7 @@ const handler = withSupabase({ auth: ["publishable"] }, async (req, ctx) => {
       .eq("subscription_id", subscriptionId)
       .eq("payment_status", "pending")
       .select();
-
+ 
     if (updateError) {
       console.error("Update error:", updateError);
       return Response.json(

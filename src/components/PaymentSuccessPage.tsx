@@ -168,7 +168,7 @@ export const PaymentSuccessPage = () => {
             </div>
 
             {/* HEADING */}
-            <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-text-primary animate-[fadeUp_0.4s_ease_0.3s_both] md:text-3xl">
+            <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-white animate-[fadeUp_0.4s_ease_0.3s_both] md:text-3xl">
               You&apos;re officially {serviceName === 'membership' ? 'a member!' : 'subscribed!'}
             </h1>
 
@@ -183,6 +183,7 @@ export const PaymentSuccessPage = () => {
           <Button
             label='Back to Homepage'
             onClick={() => navigate("/")}
+            color='neutral'
             variant='text'
             prefixIcon={ArrowLeft}
           />
