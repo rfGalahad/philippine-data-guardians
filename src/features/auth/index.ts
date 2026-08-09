@@ -6,7 +6,5 @@ export type {
   User, 
   AuthState, 
   AuthAction, 
-  AuthContextValue,
-  AuthProviderProps,
-  AuthMethod
+  AuthContextValue
 } from './types/authTypes'

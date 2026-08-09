@@ -1,4 +1,4 @@
-import type { MemberDetail } from "@/lib/supabase/types";
+import type { MemberDetail } from "@/lib/supabase/members";
 import { formatDate } from "@/utils/date";
 import { formatCurrency } from "@/utils/number";
 import { getInitials } from "@/utils/string";
