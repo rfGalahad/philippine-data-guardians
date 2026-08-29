@@ -12,7 +12,7 @@ export function mapSupabaseUser(
     email: supabaseUser.email ?? "",
     name: adminProfile.name,
     role: adminProfile.role
-  };
+  }; 
 }
 
 // FETCH SESSION 

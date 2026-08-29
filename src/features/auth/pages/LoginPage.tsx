@@ -1,27 +1,9 @@
 import pdgBackground from '@/assets/pdg-background.png';
-import BrandLogo from '@/components/BrandLogo';
-import CustomField from '@/components/ui/CustomField';
+import BrandLogo from '@/components/common/BrandLogo';
 import Button from '@/components/ui/Button';
 
-import { useAuth } from '../hooks/useAuth';
-import { useForm } from '@/hooks/useForm';
-import { email, required } from '@/utils/validators';
-import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useLogin } from '../hooks/useLogin';
 
-//-----------------------------------------------------------
-// CONSTANTS
-//-----------------------------------------------------------
-
-const INITIAL_VALUES = {
-  email: "",
-  password: ""
-}
-
-const VALIDATION_RULES = {
-  email: [required(), email()],
-  password: [required()],
-}
 
 //-----------------------------------------------------------
 // MAIN COMPONENT
@@ -29,20 +11,7 @@ const VALIDATION_RULES = {
 
 export const LoginPage = () => {
 
-  const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
-
-  useEffect(() => {
-    if (isAuthenticated) navigate("/admin/dashboard");
-  }, [isAuthenticated, navigate]);
-
-  const form = useForm({
-    initialValues: INITIAL_VALUES,
-    validationRules: VALIDATION_RULES,
-    onSubmit: async (values) => {
-      await login(values.email, values.password);
-    },
-  });
+  const { form, signInMutation } = useLogin();
 
   return (
     <div
@@ -76,49 +45,54 @@ export const LoginPage = () => {
           {/* LOGIN FORM */}
           <form 
             className="flex flex-col gap-6" 
-            onSubmit={form.handleSubmit} 
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
+            }}
             noValidate
           >
             <fieldset className="flex flex-col gap-4 border-none">
               <legend className="sr-only">Admin credentials</legend>
 
-              {/* Email Field */}
-              <CustomField
-                id="email"
-                label="Email address"
-                type="email"
-                name="email"
-                autoComplete="email"
-                placeholder="you@example.com"
-                value={form.values.email}
-                onChange={form.handleChange}
-                required
-                error={form.touched.email ? form.errors.email : undefined}
-              />
+              <form.AppField name="email">
+                {(field) => (
+                  <field.TextField
+                    label="Email address"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    required
+                  />
+                )}
+              </form.AppField>
 
-              {/* Password Field */}
-              <div>
-                <CustomField
-                  id="password"
-                  label="Password"
-                  type="password"
-                  name="password"
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  value={form.values.password}
-                  onChange={form.handleChange}
-                  error={form.touched.password ? form.errors.password : undefined}
-                  required
-                />
-              </div>
+              <form.AppField name="password">
+                {(field) => (
+                  <field.TextField
+                    label="Password"
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    required
+                  />
+                )}
+              </form.AppField>
             </fieldset>
 
-            <Button
-              label={form.isSubmitting ? "Signing in..." : "Sign in"}
-              type="submit"
-              loading={form.isSubmitting}
-              color="accent"
-            />
+           <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+            >
+              {([canSubmit, isSubmitting]) => (
+                <Button
+                  type="submit"
+                  label="Sign In"
+                  color='accent'
+                  loading={isSubmitting || signInMutation.isPending}
+                  disabled={!canSubmit}
+                />
+              )}
+            </form.Subscribe>
           </form>
         </div>
       </section>

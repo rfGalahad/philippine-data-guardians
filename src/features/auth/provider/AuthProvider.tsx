@@ -8,7 +8,7 @@ import {
   useReducer,
 } from "react";
 
-import { useToast } from "@/components/Toast";
+import { useToast } from "@/components/feedback/Toast";
 
 import {
   getSession,

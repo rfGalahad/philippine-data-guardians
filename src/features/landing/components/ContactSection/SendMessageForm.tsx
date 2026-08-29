@@ -1,122 +1,100 @@
-import { useState } from 'react';
+import { useAppForm } from '@/lib/form'
+import Button from '@/components/ui/Button'
 
-import { useForm } from '@/hooks/useForm';
-import { email, maxLength, minLength, required } from '@/utils/validators';
-
-import CustomField from '@/components/ui/CustomField';
-import Button from '@/components/ui/Button';
-
-//-----------------------------------------------------------
-// CONSTANTS
-//-----------------------------------------------------------
-
-const INITIAL_VALUES = {
-  fullName: '',
-  emailAddress: '',
-  message: '',
-  botField: ''
-};
-
-const VALIDATION_RULES = {
-  fullName: [required()],
-  emailAddress: [required(), email()],
-  message: [minLength(20), maxLength(500)],
-};
-
-//-----------------------------------------------------------
-// MAIN COMPONENT
-//-----------------------------------------------------------
+import { sendMessageDefaultValues, sendMessageSchema } from '../../schema/sendMessageSchema'
+import { useSendMessage } from '../../hooks/useSendMessage'
 
 export const SendMessageForm = () => {
 
-  const [botField, setBotField] = useState('');
+  const sendMessage = useSendMessage()
 
-  const form = useForm({
-    initialValues: INITIAL_VALUES,
-    validationRules: VALIDATION_RULES,
-    onSubmit: async (values) => {
-      if (values.botField.trim() !== "") return; 
-
-    const data = new FormData();
-    data.append("form-name", "contact");
-    data.append("fullName", values.fullName);
-    data.append("email", values.emailAddress);
-    data.append("message", values.message);
-
-    try {
-      await fetch("/", {
-        method: "POST",
-        body: data,
-      });
-      form.reset();
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
+  const form = useAppForm({
+    defaultValues: sendMessageDefaultValues,
+    validators: {
+      onChange: sendMessageSchema,
     },
-  });
+    onSubmit: async ({ value, formApi }) => {
+      // Silently drop bot submissions — no error shown, just bail
+      if (value.botField.trim() !== '') return
+
+      await sendMessage.mutateAsync(value)
+      formApi.reset()
+    },
+  })
 
   return (
-    <form 
-      onSubmit={form.handleSubmit} 
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        form.handleSubmit()
+      }}
       className="flex h-full flex-col gap-4"
     >
       {/* HONEYPOT (hidden) */}
-      <input
-        type="text"
-        name="bot-field"
-        autoComplete="off"
-        tabIndex={-1}
-        aria-hidden="true"
-        className="hidden"
-        value={botField}
-        onChange={(e) => setBotField(e.target.value)}
-      />
+      <form.AppField name="botField">
+        {(field) => (
+          <input
+            type="text"
+            name="bot-field"
+            autoComplete="off"
+            tabIndex={-1}
+            aria-hidden="true"
+            className="hidden"
+            value={field.state.value}
+            onChange={(e) => field.handleChange(e.target.value)}
+          />
+        )}
+      </form.AppField>
 
       {/* FULL NAME */}
-      <CustomField
-        id="fullName"
-        name="fullName"
-        label="Full Name"
-        placeholder="Enter your name"
-        value={form.values.fullName}
-        onChange={form.handleChange}
-        error={form.errors.fullName}
-      />
+      <form.AppField name="fullName">
+        {(field) => (
+          <field.TextField
+            label="Full Name"
+            placeholder="Enter your name"
+          />
+        )}
+      </form.AppField>
 
       {/* EMAIL ADDRESS */}
-      <CustomField
-        id="emailAddress"
-        name="emailAddress"
-        label="Email Address"
-        placeholder="Enter your email address"
-        value={form.values.emailAddress}
-        onChange={form.handleChange}
-        error={form.errors.emailAddress}
-      />
+      <form.AppField name="emailAddress">
+        {(field) => (
+          <field.TextField
+            label="Email Address"
+            placeholder="Enter your email address"
+          />
+        )}
+      </form.AppField>
 
       {/* MESSAGE */}
-      <CustomField
-        id="message"
-        name="message"
-        label="Message"
-        placeholder="Enter your concern..."
-        hint="500 characters max."
-        value={form.values.message}
-        onChange={form.handleChange} 
-        error={form.errors.message}
-        multiline
-      />
+      <form.AppField name="message">
+        {(field) => (
+          <field.TextField
+            label="Message"
+            placeholder="Enter your concern..."
+            hint="500 characters max."
+            multiline
+          />
+        )}
+      </form.AppField>
 
       {/* SEND MESSAGE BUTTON */}
-      <Button
-        type="submit"
-        label="Send Message"
-        color="neutral"
-        disabled={form.isSubmitting}
-        loading={form.isSubmitting}
-      />
+      <form.Subscribe
+        selector={(state) => [state.canSubmit, state.isSubmitting]}
+      >
+        {([canSubmit, isSubmitting]) => (
+          <Button
+            type="submit"
+            label="Send Message"
+            color="neutral"
+            disabled={!canSubmit || sendMessage.isPending}
+            loading={isSubmitting || sendMessage.isPending}
+          />
+        )}
+      </form.Subscribe>
     </form>
-  );
-};
+  )
+}
 
-export default SendMessageForm;
+export default SendMessageForm

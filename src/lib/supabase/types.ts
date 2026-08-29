@@ -1,4 +1,25 @@
-export type PaymentMethod = 'qr' | 'cash' | 'paymongo';
+export function toPlanName(
+  value: string | null | undefined
+): PlanName | null {
+  return PLAN_NAMES.includes(value as PlanName) 
+    ? (value as PlanName) 
+    : null;
+}
+
+export function toPaymentMethod(
+  value: string | null | undefined
+): PaymentMethod | null {
+  return PAYMENT_METHODS.includes(value as PaymentMethod) 
+    ? (value as PaymentMethod) 
+    : null;
+}
+
+export const PLAN_NAMES = ['student_academic', 'professional'] as const;
+export type PlanName = (typeof PLAN_NAMES)[number];
+
+export const PAYMENT_METHODS = ['qr', 'cash', 'paymongo'] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
 export type PaymentStatus = 'paid' | 'pending'
 export type SubscriptionStatus = "active" | "expired" | "upcoming" | "no-subscription";
 export type DigitalIdStatus = "issued" | "expired" | "not-issued";
@@ -47,6 +68,7 @@ export interface Service {
 export interface Plan {
   plan_id: string;
   plan_name: string;
+  price: number;
 }
 
 export interface Payment {

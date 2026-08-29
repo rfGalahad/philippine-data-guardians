@@ -1,23 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from 'react';
 
+export function useObjectUrl(file: File | Blob | string | null | undefined) {
 
-export function useObjectUrl(file: File | null | undefined) {
+  const isBlobLike = file instanceof Blob;
 
-  const [prevFile, setPrevFile] = useState(file);
-  const [url, setUrl] = useState<string | null>(() =>
-    file ? URL.createObjectURL(file) : null
-  );
-
-  if (file !== prevFile) {
-    setPrevFile(file);
-    setUrl(file ? URL.createObjectURL(file) : null);
-  }
+  const url = useMemo(() => {
+    if (!file) return null;
+    if (typeof file === 'string') return file;
+    return URL.createObjectURL(file);
+  }, [file]);
 
   useEffect(() => {
+    if (!isBlobLike || !url) return;
     return () => {
-      if (url) URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url);
     };
-  }, [url]);
+  }, [url, isBlobLike]);
 
   return url;
 }

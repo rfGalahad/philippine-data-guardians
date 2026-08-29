@@ -1,6 +1,6 @@
 import type { Session } from "@supabase/supabase-js";
 import { mapSupabaseUser } from "@/lib/supabase/auth";
-import type { useToast } from "@/components/Toast";
+import type { useToast } from "@/components/feedback/Toast";
 import type { AdminProfile } from "../types/authTypes";
 
 

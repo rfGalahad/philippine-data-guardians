@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Briefcase, Building2, Check, Users } from "lucide-react";
-import { useToast } from "@/components/Toast";
+import { useToast } from "@/components/feedback/Toast";
 import PDGLogo from '@/assets/logo-pdg-1.png';
 
 //-----------------------------------------------------------

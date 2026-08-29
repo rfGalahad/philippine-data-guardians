@@ -39,5 +39,5 @@ export async function uploadMemberPhoto(file: File): Promise<string> {
 
 export async function removeMemberPhoto(path: string): Promise<void> {
   const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([path]);
-  if (error) console.error('Failed to clean up photo after failed registration:', error.message);
+  if (error) throw new Error(`Failed to remove photo at ${path}: ${error.message}`);
 }
