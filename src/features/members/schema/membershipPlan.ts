@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { PlanName } from '../types.ts'
+import type { PlanName } from '@/lib/supabase/types'
 
 
 export const membershipPlanSchema = z.object({

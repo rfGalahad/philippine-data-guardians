@@ -11,10 +11,13 @@ export async function registerAndCheckout(
 ) {
   const { result, photoPath } = await registerMemberWithPhoto(values, plan);
   try {
-    return await createMemberCheckoutUrl(values, plan, result);
+    return await createMemberCheckoutUrl(values, plan, {
+      subscriber_id: result.registration.subscriber_id,
+      subscription_id: result.activation.subscription_id,
+    });
   } catch (error) {
     await removeMemberPhoto(photoPath);
-    await removeMember([result.subscriber_id]);
+    await removeMember([result.registration.subscriber_id]); // this line likely needs the same fix
     throw error;
   }
 }
