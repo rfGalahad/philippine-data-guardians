@@ -17,7 +17,7 @@ export async function registerAndCheckout(
     });
   } catch (error) {
     await removeMemberPhoto(photoPath);
-    await removeMember([result.registration.subscriber_id]); // this line likely needs the same fix
+    await removeMember([result.registration.subscriber_id]); 
     throw error;
   }
 }

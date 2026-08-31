@@ -38,7 +38,8 @@ export function useLogin() {
     mutationFn: ({ email, password }: z.infer<typeof loginSchema>) =>
       login(email, password),
     onSuccess: () => {
-      navigate("/dashboard");
+      navigate("/admin/dashboard");
+      
     },
     onError: (error) => {
       console.error(error.message);
