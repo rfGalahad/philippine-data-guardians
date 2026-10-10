@@ -13,7 +13,7 @@ export async function registerAndCheckout(
   try {
     return await createMemberCheckoutUrl(values, plan, {
       subscriber_id: result.registration.subscriber_id,
-      subscription_id: result.activation.subscription_id,
+      subscription_id: result.registration.subscription_id,
     });
   } catch (error) {
     await removeMemberPhoto(photoPath);

@@ -5,10 +5,13 @@
   --color-bg:        #020d1c;
   --color-surface:   #071a35;
   --color-surface-2: #0c2444;
-  --color-border:    #123060;
 
   --color-surface-light: #f0f4fa;
   --color-surface-light-2: #e8eef7;
+  --color-surface-light-3: #e1e8f2;
+
+  --color-border:    #123060;
+  --color-border-light: #c8d5e8;
 
   --color-accent:       #F7CF13;
   --color-accent-2:     #FFA000;
@@ -44,7 +47,9 @@
   --color-surface-2: var(--color-surface-2);
   --color-surface-light: var(--color-surface-light);
   --color-surface-light-2: var(--color-surface-light-2);
+  --color-surface-light-3: var(--color-surface-light-3);
   --color-border: var(--color-border);
+  --color-border-light: var(--color-border-light);
   --color-accent: var(--color-accent);
   --color-accent-2: var(--color-accent-2);
   --color-accent-hover: var(--color-accent-hover);

@@ -50,6 +50,15 @@ export async function handleMembershipPayment({
     });
   }
 
+  // SEND IN-APP NOTIFICATION
+  await createNotification({
+    userId: subscriberId,
+    type: "payment_confirmed",
+    title: "Payment confirmed",
+    body: `Your ${planName} membership is now active.`,
+    data: { referenceNumber, planName, memberId },
+  });
+
   // SEND MEMBERSHIP EMAIL 
   await sendEmail({ 
     name,

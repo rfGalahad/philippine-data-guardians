@@ -27,6 +27,13 @@ const handler = withSupabase({ auth: ["publishable"] }, async (req, ctx) => {
       appOrigin, 
       cancelUrl 
     } = await req.json();
+
+    if (!subscriberId || !subscriptionId) {
+      return Response.json(
+        { error: "Missing subscriberId or subscriptionId in request body" },
+        { status: 400, headers: corsHeaders }
+      );
+    }
     
     const referenceNumber = crypto.randomUUID();
     const successUrl = `${appOrigin}/success/membership?ref=${referenceNumber}`;

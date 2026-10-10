@@ -1,0 +1,24 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+Deno.serve(async (req) => {
+  const supabaseAdmin = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  const { user_id, type, title, body, data } = await req.json();
+
+  const { error } = await supabaseAdmin.from("notifications").insert({
+    user_id,
+    type,
+    title,
+    body,
+    data,
+  });
+
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), { status: 400 });
+  }
+
+  return new Response(JSON.stringify({ success: true }), { status: 200 });
+});

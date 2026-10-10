@@ -2,7 +2,7 @@
 // Domain types
 // ─────────────────────────────────────────────
 
-export type Role = "admin" | "editor" | "viewer";
+export type Role = "admin" | "editor" | "viewer" | "unknown";
 
 export interface User {
   id: string;

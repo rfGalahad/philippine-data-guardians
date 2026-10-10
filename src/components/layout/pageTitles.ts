@@ -2,7 +2,7 @@ import { LayoutDashboard, UserCheck, Users, type LucideIcon } from "lucide-react
 
 interface PageMeta {
   title: string;
-  icon: LucideIcon;
+  icon: LucideIcon; 
 }
 
 export const PAGE_TITLES: Record<string, PageMeta> = {

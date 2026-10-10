@@ -32,8 +32,6 @@ export default {
       const planName: string | undefined = attributes?.description;
       const referenceNumber: string | undefined = attributes?.reference_number;
 
-      console.log("ATTRIBUTES:", attributes);
-
       if (!email || !planName || !referenceNumber) {
         console.error("[webhook] missing_payload_fields", {
           hasEmail: !!email,
