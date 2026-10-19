@@ -11,6 +11,9 @@ export interface CheckoutInput {
   customerName: string;
   email: string;
   description: string;
+  serviceName: ServiceName;
+  // Where "Try again" should send the user (internal path only)
+  returnTo?: string;
 }
 
 // --------------------------------------------------------------------------------------------//
@@ -18,6 +21,12 @@ export interface CheckoutInput {
 // --------------------------------------------------------------------------------------------//
 
 const PAYMONGO_API_URL = "https://api.paymongo.com/v1/checkout_sessions";
+
+// Route segment used by the frontend for each service
+const SERVICE_ROUTE: Record<ServiceName, string> = {
+  membership: "membership",
+  privacy_impact_assessment: "privacy-impact-assessment",
+};
 
 // --------------------------------------------------------------------------------------------//
 // FUNCTIONS
@@ -29,9 +38,13 @@ function requireEnv(name: string): string {
   return value;
 }
 
-export async function createCheckout(input: CheckoutInput): Promise<{ url: string }> {
+// Only allow internal paths, so the cancel page can't be used as an open redirect
+function safeReturnPath(path?: string): string | null {
+  return path && path.startsWith("/") && !path.startsWith("//") ? path : null;
+}
 
-  const { subscriptionId, customerName, email, description } = input;
+export async function createCheckout(input: CheckoutInput): Promise<{ url: string }> {
+  const { subscriptionId, customerName, email, description, serviceName, returnTo } = input;
 
   // Read at call time so importing this file never crashes on a missing var
   const secretKey = requireEnv("PAYMONGO_SECRET_KEY");
@@ -41,6 +54,17 @@ export async function createCheckout(input: CheckoutInput): Promise<{ url: strin
   const amount = Math.round((await getPendingPaymentAmount(subscriptionId)) * 100); // centavos
 
   const referenceNumber = crypto.randomUUID();
+
+  // Save the reference BEFORE creating the session, so a paid webhook can never
+  // arrive for a reference that isn't in your DB yet
+  await setPaymentReference(subscriptionId, referenceNumber);
+
+  const route = SERVICE_ROUTE[serviceName];
+  const safeReturn = safeReturnPath(returnTo);
+
+  const cancelUrl =
+    `${appOrigin}/cancelled/${route}` +
+    (safeReturn ? `?returnTo=${encodeURIComponent(safeReturn)}` : "");
 
   const res = await fetch(PAYMONGO_API_URL, {
     method: "POST",
@@ -59,8 +83,8 @@ export async function createCheckout(input: CheckoutInput): Promise<{ url: strin
           reference_number: referenceNumber,
           line_items: [{ currency: "PHP", amount, name: description, quantity: 1 }],
           payment_method_types: ["card", "gcash", "grab_pay"],
-          success_url: `${appOrigin}/success/membership?ref=${referenceNumber}`,
-          cancel_url: `${appOrigin}/cancelled/membership`,
+          success_url: `${appOrigin}/success/${route}?ref=${referenceNumber}`,
+          cancel_url: cancelUrl,
         },
       },
     }),
@@ -71,9 +95,6 @@ export async function createCheckout(input: CheckoutInput): Promise<{ url: strin
     console.error("PayMongo error:", JSON.stringify(body));
     throw new Error(`PayMongo checkout failed (${res.status})`);
   }
-
-  // Attach the reference to the pending row created during registration
-  await setPaymentReference(subscriptionId, referenceNumber);
 
   return { url: body.data.attributes.checkout_url };
 }

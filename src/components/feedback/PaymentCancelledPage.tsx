@@ -1,23 +1,34 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, RotateCcw, XCircle } from 'lucide-react';
-
-import type { ServiceName } from '@/features/checkout/createCheckout';
 
 import BackgroundImage from '@/assets/pdg-background.png';
 import Button from '../ui/Button';
 
 //-----------------------------------------------------------
-// CONSTANTS
+// TYPES & CONSTANTS
 //-----------------------------------------------------------
+
+type ServiceName = 'membership' | 'privacy-impact-assessment';
+
+const isServiceName = (value?: string): value is ServiceName =>
+  value === 'membership' || value === 'privacy-impact-assessment';
+
+const SERVICE_LABEL: Record<ServiceName, string> = {
+  membership: 'your membership',
+  'privacy-impact-assessment': 'your privacy impact assessment',
+};
+
+// Only allow internal paths to avoid open redirects
+const getSafeReturnPath = (value: string | null) =>
+  value && value.startsWith('/') && !value.startsWith('//') ? value : '/';
 
 const cancelledMessage = (serviceName?: ServiceName) => (
   <>
     You cancelled the checkout before paying, so{' '}
-    {serviceName === 'membership' ? 'your membership' : 'your subscription'} wasn&apos;t started
-    and you haven&apos;t been charged. You can try again whenever you&apos;re ready.
+    {serviceName ? SERVICE_LABEL[serviceName] : 'your order'} wasn&apos;t started and you
+    haven&apos;t been charged. You can try again whenever you&apos;re ready.
   </>
 );
-
 //-----------------------------------------------------------
 // STYLES
 //-----------------------------------------------------------
@@ -34,16 +45,16 @@ const keyframes = `
 export const PaymentCancelledPage = () => {
   const navigate = useNavigate();
 
-  // Optional: pass ?service=membership (or your other ServiceName) in the
-  // cancel URL so the copy can match what the person was buying.
+  const { service } = useParams<{ service: string }>();
   const [searchParams] = useSearchParams();
-  const serviceName = (searchParams.get('service') ?? undefined) as ServiceName | undefined;
+  const serviceName = isServiceName(service) ? service : undefined;
+  const returnPath = getSafeReturnPath(searchParams.get('returnTo'));
 
   return (
     <>
       <style>{keyframes}</style>
       <div
-        className="flex h-screen w-full justify-center bg-cover bg-center px-6"
+        className="flex min-h-dvh w-full justify-center bg-cover bg-center px-6"
         style={{ backgroundImage: `url(${BackgroundImage})` }}
       >
         <div className="mx-auto flex w-full max-w-sm flex-col justify-center gap-8">
@@ -57,7 +68,7 @@ export const PaymentCancelledPage = () => {
               </div>
             </div>
 
-            {/* PAYMENT CANCELLED - BADGE */}
+            {/* BADGE */}
             <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(245,158,11,0.22)] bg-[rgba(245,158,11,0.07)] px-3 py-1 animate-[fadeUp_0.4s_ease_0.2s_both]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#f59e0b]" />
               <span className="text-[0.62rem] font-bold uppercase tracking-[0.13em] text-[#f59e0b]">
@@ -71,7 +82,7 @@ export const PaymentCancelledPage = () => {
             </h1>
 
             {/* DESCRIPTION */}
-            <p className="text-sm text-gray-500 animate-[fadeUp_0.4s_ease_0.4s_both]">
+            <p className="text-sm text-gray-400 animate-[fadeUp_0.4s_ease_0.4s_both]">
               {cancelledMessage(serviceName)}
             </p>
           </div>
@@ -79,14 +90,14 @@ export const PaymentCancelledPage = () => {
           <div className="flex flex-col gap-2 animate-[fadeUp_0.4s_ease_0.55s_both]">
             <Button
               label="Try again"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(returnPath, { replace: true })}
               color="accent"
               variant="text"
               prefixIcon={RotateCcw}
             />
             <Button
               label="Back to Homepage"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/', { replace: true })}
               color="neutral"
               variant="text"
               prefixIcon={ArrowLeft}
