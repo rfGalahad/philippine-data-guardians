@@ -23,7 +23,6 @@ import {
 
 import { removeMemberPhoto } from "./member-photos";
 import { logActivity } from "./activity-log";
-import { getFullName } from "@/utils/string";
 
 // ---------------------------------------------------------------------------
 // TYPES
@@ -147,6 +146,24 @@ export interface UpdateMemberPayload {
 export interface MemberGrowthPoint {
   month: string;   
   members: number; 
+}
+
+export interface EmailMembershipStatus {
+  exists: boolean;
+  is_active: boolean;
+  member_id?: string;
+  subscriber_id?: string;
+  expires_at?: string | null;
+}
+
+export class ActiveMembershipError extends Error {
+  public readonly expiresAt: string | null;
+
+  constructor(expiresAt: string | null) {
+    super("An active membership already exists for this email.");
+    this.name = "ActiveMembershipError";
+    this.expiresAt = expiresAt;
+  }
 }
 
 
@@ -377,18 +394,36 @@ export async function fetchMemberGrowth(monthsBack = 6): Promise<MemberGrowthPoi
   return result;
 }
 
+// CHECK IF EMAIL MEMBERSHIP
+export async function checkEmailMembership(email: string): Promise<EmailMembershipStatus> {
+  const { data, error } = await supabase.rpc("check_email_membership", { p_email: email });
+  if (error) throw error;
+  return data as EmailMembershipStatus;
+}
+
 // REGISTER/ADD A MEMBER
 // RETURNS: 
-export async function registerMember(payload: MemberPayload) {
-  const { data, error } = await supabase.rpc("register_member", payload);
+export async function registerMember(
+  payload: MemberPayload,
+  options: { confirmRenewal?: boolean } = {}
+) {
+  
+  const { data, error } = await supabase.rpc("register_member", {
+    ...payload,
+    p_confirm_renewal: options.confirmRenewal ?? false,
+  });
 
   if (error) throw error;
+
+  if (data?.requires_confirmation) {
+    throw new ActiveMembershipError(data.expires_at ?? null);
+  }
 
   const subscriberId = data?.subscriber_id;
 
   if (!subscriberId) {
     throw new Error("Registration succeeded but subscriber_id was not returned.");
-  }
+  } 
 
   const { data: activationData, error: activationError } =
     await supabase.rpc("activate_member", {
@@ -397,11 +432,13 @@ export async function registerMember(payload: MemberPayload) {
 
   if (activationError) throw activationError;
 
+  const fullName = payload.p_first_name + " " + payload.p_last_name;
+
   await logActivity(
     "member_added",
     data.member_id,
     `added a member`,
-    getFullName(data)
+    fullName
   );
 
   return {

@@ -1,11 +1,16 @@
-import { createOrGetUser, generateMagicLink, generateRecoveryLink } from "../services/auth-service.ts";
-import sendEmail from "../email/send-email.ts";
-import { maskEmail } from "../utils/mask-email.ts";
+import { createOrGetUser, generateMagicLink, generateRecoveryLink } from "../services/authService.ts";
+import { maskEmail } from "../../_shared/utils.ts";
 
+import sendEmail from "../email/sendEmail.ts";
+
+//-----------------------------------------------------------
+// FUNCTION
+//-----------------------------------------------------------
 
 export async function handleSubscriptionPayment(
   { email, planName }: { email: string; planName: string },
 ) {
+  
   const { error: createError } = await createOrGetUser(email);
 
   if (createError?.code === "email_exists") {

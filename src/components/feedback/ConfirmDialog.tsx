@@ -111,7 +111,7 @@ export default function ConfirmDialog({
             data-autofocus
             onClick={() => onOpenChange(false)}
             disabled={loading}
-            className="cursor-pointer rounded-md px-3.5 py-2 font-body text-sm font-medium text-text-secondary transition hover:bg-black/5 disabled:opacity-40"
+            className="w-full cursor-pointer rounded-md px-3.5 py-2 font-body text-sm font-medium text-text-secondary transition hover:bg-black/5 disabled:opacity-40"
           >
             {cancelLabel}
           </button>
@@ -119,8 +119,8 @@ export default function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className={`cursor-pointer inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 font-body text-sm font-medium text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
-              isDanger ? "bg-red-600 hover:bg-red-700" : "bg-black hover:bg-black/80"
+            className={`w-full cursor-pointer inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 font-body text-sm font-medium text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
+              isDanger ? "bg-red-600 hover:bg-red-700" : "bg-text-primary hover:bg-text-primary/80"
             }`}
           >
             {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}

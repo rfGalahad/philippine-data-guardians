@@ -1,11 +1,18 @@
-import "@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "@supabase/server";
-import { CONFIG } from "./config.ts";
-import { handleMembershipPayment } from "./handlers/membership-handler.ts";
-import { handleSubscriptionPayment } from "./handlers/subscription-handler.ts";
+import { withSupabase } from "npm:@supabase/server@^1";
+import { handleMembershipPayment } from "./handlers/handleMembershipPayment.ts";
+import { handleSubscriptionPayment } from "./handlers/handleSubscriptionPayment.ts";
 
-import verifySignature from "./utils/verify-signature.ts";
+import verifySignature from "./utils/verifySignature.ts";
 
+// --------------------------------------------------------------------------------------------//
+// CONSTANTS
+// --------------------------------------------------------------------------------------------//
+
+const WEBHOOK_EVENT = "checkout_session.payment.paid";
+
+// --------------------------------------------------------------------------------------------//
+// FUNCTION
+// --------------------------------------------------------------------------------------------//
 
 export default {
   fetch: withSupabase({ auth: "none" }, async (req) => {
@@ -21,7 +28,7 @@ export default {
       const body = JSON.parse(rawBody);
       const eventType = body?.data?.attributes?.type;
 
-      if (eventType !== CONFIG.webhookEvent) {
+      if (eventType !== WEBHOOK_EVENT) {
         console.log("[webhook] webhook_ignored", { eventType });
         return Response.json({ received: true }, { status: 200 });
       }
@@ -41,11 +48,14 @@ export default {
         return Response.json({ error: "Invalid payload" }, { status: 400 });
       }
 
+      // EDGE FUNCTION for HANDLING MEMBERSHIP PAYMENT
       if (planName.includes("PDG Membership")) {
         return handleMembershipPayment({ name, email, planName, referenceNumber });
       }
 
+      //  EDGE FUNCTION for HANDLING SUBSCRIPTION PAYMEN
       return handleSubscriptionPayment({ email, planName });
+
     } catch (err) {
       console.error("[webhook] unhandled_exception", { message: err.message, stack: err.stack });
       return Response.json({ error: "Internal server error" }, { status: 500 });

@@ -1,6 +1,5 @@
-import { CONFIG } from "./config.ts";
-import { subscriptionEmail } from "./email/subscription-email.ts";
-import { membershipEmail } from "./email/membership-email.ts";
+import { subscriptionEmail } from "./subscriptionEmail.ts";
+import { membershipEmail } from "./membershipEmail.ts";
 
 //-----------------------------------------------------------
 // CONSTANTS
@@ -8,6 +7,8 @@ import { membershipEmail } from "./email/membership-email.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 const RESEND_API_URL = "https://api.resend.com/emails";
+const EMAIL_FROM = "Philippine Data Guardians <members@phdataguardians.org>";
+const LOGO_URL = "https://res.cloudinary.com/diuruuyas/image/upload/v1779172364/logo-pdg-1_gojiba.png";
 
 //-----------------------------------------------------------
 // TYPES
@@ -44,7 +45,7 @@ async function sendViaResend(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: CONFIG.emailFrom,
+      from: EMAIL_FROM,
       to,
       subject,
       html,
@@ -71,7 +72,7 @@ export default async function sendEmail(input: SendEmailInput) {
         input.name,
         input.email, 
         input.memberId,
-        CONFIG.logoUrl 
+        LOGO_URL 
       ),
     );
     return;
@@ -89,7 +90,7 @@ export default async function sendEmail(input: SendEmailInput) {
     subscriptionEmail(
       planName, 
       actionLink, 
-      CONFIG.logoUrl, 
+      LOGO_URL, 
       isExisting
     ),
   );

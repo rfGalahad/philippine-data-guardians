@@ -70,3 +70,26 @@ export async function getAdminProfile(userId: string) {
 
   return data;
 }
+
+export async function getAAL() {
+  const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (error) throw error;
+  return data;
+}
+
+export async function getTotpFactorId() {
+  const { data, error } = await supabase.auth.mfa.listFactors();
+  if (error) throw error;
+  return data.totp[0]?.id ?? null; // verified factors only
+}
+
+export async function enrollTotp() {
+  const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp" });
+  if (error) throw error;
+  return { factorId: data.id, qr: data.totp.qr_code, secret: data.totp.secret };
+}
+
+export async function verifyTotp(factorId: string, code: string) {
+  const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code });
+  if (error) throw error;
+}

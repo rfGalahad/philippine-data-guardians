@@ -25,7 +25,7 @@ import { useDeleteMember } from "../hooks/useDeleteMember";
 import UpdateMemberContent from "../components/contents/UpdateMemberContent";
 
 
-
+ 
 const PAGE_SIZE = 10;
 
 export default function PDGMembersPage() {
@@ -190,7 +190,10 @@ export default function PDGMembersPage() {
         onClose={addMemberPanel.closePanel} 
         title="Add New PDG Member"
       >
-        <AddMemberContent onClose={addMemberPanel.closePanel} onSuccess={fetchMembers.refetch} />
+        <AddMemberContent 
+          onClose={addMemberPanel.closePanel} 
+          onSuccess={fetchMembers.refetch} 
+        />
       </SlideOverPanel>
 
       {/* MEMBER DETAILS PANEL */}

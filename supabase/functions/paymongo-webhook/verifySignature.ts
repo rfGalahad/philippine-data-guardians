@@ -1,11 +1,22 @@
-import { CONFIG } from "./config.ts";
-import { safeEqual } from "./utils/helper.ts";
-
 //-----------------------------------------------------------
 // CONSTANTS
 //-----------------------------------------------------------
 
 const PAYMONGO_WEBHOOK_SECRET = Deno.env.get("PAYMONGO_WEBHOOK_SECRET")!;
+const TIMESTAMP_TOLERANCE_SECS = 300;
+
+//-----------------------------------------------------------
+// HELPERS
+//-----------------------------------------------------------
+
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
 
 //-----------------------------------------------------------
 // MAIN FUNCTION
@@ -30,9 +41,8 @@ export default async function verifySignature (
 
   if (!timestamp || !signature) return false;
 
-  // Replay attack protection — reject stale webhooks
   const age = Math.abs(Date.now() / 1000 - parseInt(timestamp, 10));
-  if (age > CONFIG.timestampToleranceSecs) {
+  if (age > TIMESTAMP_TOLERANCE_SECS) {
     log("warn", "webhook_timestamp_expired", { age });
     return false;
   }

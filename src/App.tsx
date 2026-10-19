@@ -12,6 +12,7 @@ import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import SubscribersPage from "@/features/subscribers/pages/SubscribersPage";
 
 import PaymentSuccessPage from "@/components/feedback/PaymentSuccessPage";
+import PaymentCancelledPage from "./components/feedback/PaymentCancelledPage";
 import EmptyPage from "@/components/feedback/EmptyPage";
 import LoadingPage from "@/components/feedback/LoadingPage";
 
@@ -55,6 +56,7 @@ function App() {
               <Route path="/" element={<LandingPage/>}/>
               <Route path="/registration" element={<RegistrationPage/>}/>
               <Route path="/success/membership" element={<PaymentSuccessPage/>}/>
+              <Route path="/cancelled/membership" element={<PaymentCancelledPage/>}/>
               <Route path="/admin/login" element={<LoginPage/>}/>
 
               <Route path="/services">

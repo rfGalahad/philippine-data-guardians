@@ -28,7 +28,7 @@ export function useLogin() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, mfaStep } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated) navigate("/admin/dashboard");
@@ -37,10 +37,6 @@ export function useLogin() {
   const signInMutation = useMutation({
     mutationFn: ({ email, password }: z.infer<typeof loginSchema>) =>
       login(email, password),
-    onSuccess: () => {
-      navigate("/admin/dashboard");
-      
-    },
     onError: (error) => {
       console.error(error.message);
       toast.error("Failed to sign in. Check your email and password.", {
@@ -59,5 +55,5 @@ export function useLogin() {
     },
   });
 
-  return { form, signInMutation };
+  return { form, signInMutation, mfaStep };
 }

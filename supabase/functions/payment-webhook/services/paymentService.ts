@@ -1,4 +1,5 @@
-import { supabaseAdmin } from "./supabase-client.ts";
+import { supabaseAdmin } from "./supabaseClient.ts";
+
 
 // UPDATES PAYMENT_STATUS TO "PAID"
 export async function markPaymentPaid(referenceNumber: string) {

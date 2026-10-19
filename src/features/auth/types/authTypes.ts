@@ -3,6 +3,7 @@
 // ─────────────────────────────────────────────
 
 export type Role = "admin" | "editor" | "viewer" | "unknown";
+export type MfaStep = "enroll" | "verify" | null;
 
 export interface User {
   id: string;
@@ -27,6 +28,7 @@ export interface AuthState {
   token: string | null;
   isLoading: boolean;
   error: string | null;
+  mfaStep: MfaStep;
 }
 
 // ─────────────────────────────────────────────
@@ -39,7 +41,8 @@ export type AuthAction =
   | { type: "AUTH_FAILURE"; payload: string }
   | { type: "AUTH_LOGOUT" }
   | { type: "REFRESH_USER"; payload: User }
-  | { type: "CLEAR_ERROR" };
+  | { type: "CLEAR_ERROR" }
+  | { type: "MFA_REQUIRED"; payload: "enroll" | "verify" };
 
 // ─────────────────────────────────────────────
 // Context value
@@ -51,4 +54,5 @@ export interface AuthContextValue extends AuthState {
   logout: () => void;
   refreshUser: () => Promise<void>;
   clearError: () => void;
+  verifyMfa: (code: string, factorId?: string) => Promise<void>;
 }

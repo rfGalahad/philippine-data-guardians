@@ -9,8 +9,8 @@ import { SendMessageForm } from './SendMessageForm';
 //-----------------------------------------------------------
 
 const CONTACT_ITEMS = [
-  { icon: Mail, title: 'Email', description: 'members@phdataguardians.org' },
-  { icon: Phone, title: 'Phone', description: '(+63) 929 344 5296' },
+  { icon: Mail, title: 'Email', description: 'info@philippinedataguardians.org' },
+  { icon: Phone, title: 'Phone', description: '(+63) 952 476 2059' },
   { icon: MapPin, title: 'Office Address', description: 'C5 Ext. Paranaque City, Metro Manila' },
 ];
 

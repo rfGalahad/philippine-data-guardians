@@ -1,18 +1,13 @@
-import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
-import type { ServiceName } from '@/features/checkout/createCheckout';
-
 import BackgroundImage from '@/assets/pdg-background.png';
 import Button from '../ui/Button';
+import { useVerifyPayment } from '@/hooks/useVerifyPayment';
 
 //----------------------------------------------------------- 
 // CONSTANTS 
 //----------------------------------------------------------- 
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const membershipMessage = (email: string) => (
   <>
@@ -20,7 +15,7 @@ const membershipMessage = (email: string) => (
     <span className="text-accent">{email}</span>. Please check your inbox and spam folder for an
     email from Philippine Data Guardians.
   </>
-);
+); 
 
 const subscriptionMessage = (email: string) => (
   <>
@@ -31,14 +26,9 @@ const subscriptionMessage = (email: string) => (
 );
 
 //----------------------------------------------------------- 
-// TYPES 
-//----------------------------------------------------------- 
-
-type Status = 'checking' | 'verified' | 'invalid';
-
-//----------------------------------------------------------- 
 // STYLES
 //----------------------------------------------------------- 
+
 const keyframes = `
   @keyframes ripple { 0% { transform: scale(0.85); opacity: 0.5; } 100% { transform: scale(1.9); opacity: 0; } }
   @keyframes popIn  { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -52,52 +42,10 @@ const keyframes = `
 export const PaymentSuccessPage = () => {
 
   const navigate = useNavigate();
-
   const [searchParams] = useSearchParams();
   const reference = searchParams.get('ref');
 
-  const [status, setStatus] = useState<Status>(() => (reference ? 'checking' : 'invalid'));
-  const [email, setEmail] = useState<string | null>(null);
-  const [serviceName, setServiceName] = useState<ServiceName>();
-
-  useEffect(() => {
-    if (!reference) return;
-
-    let attempts = 0;
-    const interval = setInterval(async () => {
-      attempts++;
-      try {
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/verify-payment`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-            apikey: SUPABASE_ANON_KEY,
-          },
-          body: JSON.stringify({ reference }),
-        });
-
-        const data = await res.json();
-
-        if (data.paid) {
-          setEmail(data.email);
-          setServiceName(data.serviceName);
-          setStatus('verified');
-          clearInterval(interval);
-        } else if (attempts >= 6) {
-          setStatus('invalid');
-          clearInterval(interval);
-        }
-      } catch {
-        if (attempts >= 6) {
-          setStatus('invalid');
-          clearInterval(interval);
-        }
-      }
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [reference]);
+  const { status, email, serviceName } = useVerifyPayment(reference);
 
   if (status === 'checking') {
     return (

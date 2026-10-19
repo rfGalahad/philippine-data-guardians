@@ -16,13 +16,16 @@ import {
   signOut,
   getCurrentUser,
   onAuthStateChange,
-  getAdminProfile
+  getAdminProfile,
+  getTotpFactorId,
+  verifyTotp,
+  getAAL
 } from "@/lib/supabase/auth";
 
 import { AuthContext } from "../context/AuthContext";
-import { authReducer } from "../reducer/authReducer";
+import { authReducer, initialState } from "../reducer/authReducer";
 import { notifyPendingSignInSuccess, toAuthSuccessPayload } from "../utils/authHelpers";
-import type { AuthContextValue, AuthState } from "../types/authTypes";
+import type { AuthContextValue } from "../types/authTypes";
 
 // ─────────────────────────────────────────────
 // TYPES
@@ -38,13 +41,6 @@ interface AuthProviderProps {
 
 const PENDING_SIGNIN_KEY = "auth:pending_signin";
 
-const initialState: AuthState = {
-  user: null,
-  token: null,
-  isLoading: true, 
-  error: null,
-};
-
 // ─────────────────────────────────────────────
 // PROVIDER
 // ─────────────────────────────────────────────
@@ -57,6 +53,15 @@ export const AuthProvider = ({ children }: AuthProviderProps ) => {
   const applySession = useCallback(async (session: Session | null) => {
     if (!session) {
       dispatch({ type: "AUTH_LOGOUT" });
+      return;
+    }
+
+    const { currentLevel, nextLevel } = await getAAL();
+    if (currentLevel !== "aal2") {
+      dispatch({
+        type: "MFA_REQUIRED",
+        payload: nextLevel === "aal2" ? "verify" : "enroll",
+      });
       return;
     }
 
@@ -86,6 +91,13 @@ export const AuthProvider = ({ children }: AuthProviderProps ) => {
     });
 
     return () => subscription.unsubscribe();
+  }, [applySession]);
+
+  const verifyMfa = useCallback(async (code: string, factorId?: string) => {
+    const id = factorId ?? (await getTotpFactorId());
+    if (!id) throw new Error("No authenticator found");
+    await verifyTotp(id, code);
+    await applySession(await getSession()); // re-evaluate at aal2
   }, [applySession]);
 
 
@@ -136,8 +148,9 @@ export const AuthProvider = ({ children }: AuthProviderProps ) => {
       logout,
       refreshUser,
       clearError,
+      verifyMfa
     }),
-    [state, login, logout, refreshUser, clearError]
+    [state, login, logout, refreshUser, clearError, verifyMfa]
   );
 
   return (

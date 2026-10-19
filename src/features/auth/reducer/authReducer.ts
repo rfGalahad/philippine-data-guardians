@@ -5,6 +5,7 @@ export const initialState: AuthState = {
   token: null,
   isLoading: true,
   error: null,
+  mfaStep: null,
 }; 
 
 export const authReducer = (
@@ -23,6 +24,7 @@ export const authReducer = (
         user: action.payload.user,
         token: action.payload.token,
         error: null,
+        mfaStep: null
       };
 
     case "AUTH_FAILURE":
@@ -32,6 +34,7 @@ export const authReducer = (
         user: null,
         token: null,
         error: action.payload,
+        mfaStep: null
       };
 
     case "AUTH_LOGOUT":
@@ -42,6 +45,17 @@ export const authReducer = (
 
     case "CLEAR_ERROR":
       return { ...state, error: null };
+
+    case "MFA_REQUIRED":
+      return { 
+        ...state, 
+        user: null, 
+        token: null, 
+        isLoading: false, 
+        error: null, 
+        mfaStep: action.payload 
+      };
+
 
     default:
       return state;

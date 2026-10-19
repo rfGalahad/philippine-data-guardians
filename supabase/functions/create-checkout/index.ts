@@ -1,4 +1,3 @@
-import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
 
 //-----------------------------------------------------------
@@ -8,24 +7,28 @@ import { withSupabase } from "@supabase/server";
 const PAYMONGO_SECRET_KEY = Deno.env.get("PAYMONGO_SECRET_KEY")!;
 const PAYMONGO_API_URL = "https://api.paymongo.com/v1/checkout_sessions";
 
+//-----------------------------------------------------------
+// CORS HEADER
+//-----------------------------------------------------------
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const handler = withSupabase({ auth: ["publishable"] }, async (req, ctx) => {
+//-----------------------------------------------------------
+// HANDLER
+//-----------------------------------------------------------
 
+const handler = withSupabase({ auth: ["publishable"] }, async (req, ctx) => {
   try {
     const { 
       subscriberId,
       subscriptionId,
       email, 
       customerName,
-      amount, 
-      description,
-      appOrigin, 
-      cancelUrl 
+      description
     } = await req.json();
 
     if (!subscriberId || !subscriptionId) {
@@ -34,7 +37,25 @@ const handler = withSupabase({ auth: ["publishable"] }, async (req, ctx) => {
         { status: 400, headers: corsHeaders }
       );
     }
-    
+ 
+    const { data: payment, error: paymentError } = await ctx.supabaseAdmin
+      .from("payments")
+      .select("amount")
+      .eq("subscription_id", subscriptionId)
+      .eq("payment_status", "pending")
+      .single();
+
+    if (paymentError || !payment) {
+      return Response.json(
+        { error: "No pending payment record found" },
+        { status: 404, headers: corsHeaders }
+      );
+    }
+
+    const amount = Math.round(Number(payment.amount) * 100); // centavos
+    const appOrigin = Deno.env.get("APP_ORIGIN")!;
+    const cancelUrl = `${appOrigin}/cancelled/membership`;
+
     const referenceNumber = crypto.randomUUID();
     const successUrl = `${appOrigin}/success/membership?ref=${referenceNumber}`;
     const encoded = btoa(PAYMONGO_SECRET_KEY + ":");
@@ -84,7 +105,6 @@ const handler = withSupabase({ auth: ["publishable"] }, async (req, ctx) => {
     const { data: updated, error: updateError } = await ctx.supabaseAdmin
       .from("payments")
       .update({ reference_number: referenceNumber })
-      .eq("subscriber_id", subscriberId)
       .eq("subscription_id", subscriptionId)
       .eq("payment_status", "pending")
       .select();
@@ -105,6 +125,7 @@ const handler = withSupabase({ auth: ["publishable"] }, async (req, ctx) => {
       );
     }
 
+    // RETURN CHECKOUT_URL
     return Response.json(
       { url: data.data.attributes.checkout_url }, 
       { headers: corsHeaders }
@@ -124,6 +145,7 @@ const handler = withSupabase({ auth: ["publishable"] }, async (req, ctx) => {
 export default {
   fetch: (req: Request) => {
     if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
     return handler(req);
   },
 };

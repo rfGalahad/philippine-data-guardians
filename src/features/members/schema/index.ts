@@ -12,7 +12,7 @@ export * from './personalInformation'
 export * from './addressDetails'
 export * from './uploadPicture'
 export * from './membershipPlan'
-export * from './payment'
+export * from './payment' 
 
 export const fullSchema = personalInformationSchema
   .merge(updateDetailsSchema)

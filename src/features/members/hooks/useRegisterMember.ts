@@ -17,7 +17,9 @@ export function useRegisterMember(onSuccess?: () => void) {
   ) => {
     setLoading(true);
     try {
+      console.log("REGISTERING...")
       const result = await registerMemberWithPhoto(values, plan);
+      console.log("RESULT", result)
       toast.success("Member registered successfully.");
       onSuccess?.();
       return result;
@@ -25,7 +27,7 @@ export function useRegisterMember(onSuccess?: () => void) {
       toast.error("Something went wrong. Please try again.");
       throw error;
     } finally {
-      setLoading(false);
+      setLoading(false); 
     }
   };
 

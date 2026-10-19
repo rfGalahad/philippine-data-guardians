@@ -12,6 +12,7 @@ import MembershipPlan from '../components/form/MembershipPlan';
 import Review from '../components/form/ReviewDetails';
 
 import { useRegisterAndCheckout } from '../hooks/useRegisterAndCheckout';
+import { RenewMembershipDialog } from '../components/RenewMembershipDialog';
 
 
 const STEPS: string[] = [
@@ -26,7 +27,7 @@ const STEPS: string[] = [
 export const RegistrationPage = () => {
 
   const form = useRegistrationForm();
-  const { checkout, loading } = useRegisterAndCheckout(form);
+  const { checkout, loading, renewPrompt, confirmRenewal, cancelRenewal } = useRegisterAndCheckout(form);
 
   const { 
     activeStep, 
@@ -35,8 +36,6 @@ export const RegistrationPage = () => {
     handleBack, 
     handleNext 
   } = useStepper(STEPS.length);
-
-
 
   return (
     <div
@@ -63,6 +62,14 @@ export const RegistrationPage = () => {
             </div>
         </div>
       </div>
+
+      {renewPrompt && (
+        <RenewMembershipDialog
+          expiresAt={renewPrompt.expiresAt}
+          onConfirm={confirmRenewal}
+          onCancel={cancelRenewal}
+        />
+      )}
     </div>
   );
 };

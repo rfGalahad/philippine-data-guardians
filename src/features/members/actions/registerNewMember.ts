@@ -15,7 +15,8 @@ export async function registerNewMember(
     method: PaymentMethod,
     referenceNumber?: string 
   },
-  paymentStatus: PaymentStatus
+  paymentStatus: PaymentStatus,
+  opts: { confirmRenewal?: boolean } = {}
 ) {
   const photoUrl = getMemberPhotoUrl(photoPath);
   const planDetails = await getPlan(plan);
@@ -31,5 +32,5 @@ export async function registerNewMember(
     paymentStatus,
   });
 
-  return registerMember(payload);
+  return registerMember(payload, opts);
 }

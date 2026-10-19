@@ -1,78 +1,66 @@
-import "@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "@supabase/server";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { withSupabase } from "npm:@supabase/server";
+import { json, preflight } from "../_shared/cors.ts";
+import { getPaymentByReference } from "../_shared/payments.ts";
 
-//----------------------------------------------------------- 
-// CONSTANTS 
-//----------------------------------------------------------- 
+// --------------------------------------------------------------------------------------------//
+// HELPERS
+// --------------------------------------------------------------------------------------------//
 
-const supabaseAdmin = createClient(
-  Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-);
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+function maskEmail(email: string): string {
+  const [name, domain] = email.split("@");
+  if (!name || !domain) return "your email";
+  return `${name[0]}${"*".repeat(Math.max(name.length - 1, 2))}@${domain}`;
+}
+
+// --------------------------------------------------------------------------------------------//
+// HANDLER
+// --------------------------------------------------------------------------------------------//
 
 const handler = withSupabase({ auth: ["publishable"] }, async (req) => {
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+
+  let reference: unknown;
   try {
-    const { reference } = await req.json();
+    ({ reference } = await req.json());
+  } catch {
+    return json({ paid: false, error: "Malformed request" }, 400);
+  }
 
-    if (!reference) {
-      return Response.json(
-        { paid: false, error: "Missing reference" }, 
-        { status: 400, headers: corsHeaders }
-      );
+  if (typeof reference !== "string" || !UUID_RE.test(reference)) {
+    return json({ paid: false, error: "Invalid reference" }, 400);
+  }
+
+  try {
+    const payment = await getPaymentByReference(reference);
+
+    // Same response for "not found" and "pending"
+    if (!payment || payment.payment_status !== "paid") {
+      return json({ paid: false });
     }
 
-    const { data, error } = await supabaseAdmin
-      .from("payments")
-      .select(`
-        payment_status,
-        subscribers ( email ),
-        subscriptions (
-          plans ( plan_name ),
-          services ( service_name )
-        )
-      `)
-      .eq("reference_number", reference)
-      .maybeSingle();
+    const sub = payment.subscriptions;
+    const email = sub?.subscribers?.email;
 
-    if (error) {
-      console.error("Lookup error:", error);
-      return Response.json(
-        { paid: false, error: error.message },
-        { status: 500, headers: corsHeaders }
-      );
-    }
-
-    return Response.json(
-      {
-        paid: data?.payment_status === "paid",
-        email: data?.subscribers?.email ?? null,
-        planName: data?.subscriptions?.plans?.plan_name ?? null,
-        serviceName: data?.subscriptions?.services?.service_name ?? null,
-      },
-      { headers: corsHeaders }
-    );
-  } catch (err) {
-    return Response.json(
-      { paid: false, error: err.message }, 
-      { status: 500, headers: corsHeaders }
-    );
+    return json({
+      paid: true,
+      email: email ? maskEmail(email) : null,
+      serviceName: sub?.services?.service_name ?? null,
+    });
+  } catch (e) {
+    console.error("[verify-checkout]", e);
+    return json({ paid: false, error: "Internal error" }, 500);
   }
 });
 
-//----------------------------------------------------------- 
+// --------------------------------------------------------------------------------------------//
 // MAIN FUNCTION
-//----------------------------------------------------------- 
+// --------------------------------------------------------------------------------------------//
 
 export default {
   fetch: (req: Request) => {
-    if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+    if (req.method === "OPTIONS") return preflight();
     return handler(req);
   },
 };
