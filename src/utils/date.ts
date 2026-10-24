@@ -21,3 +21,6 @@ export function timeAgo(iso: string): string {
   if (days < 7) return `${days}d ago`;
   return new Date(iso).toLocaleDateString();
 }
+
+export const byDateDesc = (a: string | null, b: string | null): number =>
+  new Date(b ?? 0).getTime() - new Date(a ?? 0).getTime();

@@ -1,5 +1,7 @@
 import { supabaseAdmin } from "./supabaseAdmin.ts";
- 
+import type { PaymentMethod, PaymentStatus } from "./payments.ts"
+
+
 // ---------------------------------------------------------------------------
 // TYPES
 // ---------------------------------------------------------------------------
@@ -62,11 +64,8 @@ export class ActiveMembershipError extends Error {
 }
 
 // CHECK IF EMAIL MEMBERSHIP
-export async function checkEmailMembership(
-  admin: SupabaseClient,
-  email: string
-): Promise<EmailMembershipStatus> {
-  const { data, error } = await admin.rpc("check_email_membership", { p_email: email });
+export async function checkEmailMembership(email: string): Promise<EmailMembershipStatus> {
+  const { data, error } = await supabaseAdmin.rpc("check_email_membership", { p_email: email });
   if (error) throw error;
   return data as EmailMembershipStatus;
 }

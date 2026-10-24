@@ -4,7 +4,7 @@ export { default as PDGMembersPage } from './pages/PDGMembersPage'
 
 // HOOKS
 export { useDeleteMember } from './hooks/useDeleteMember';
-export { useFetchMembers } from './hooks/useFetchMembers';
+export { useMembers } from './hooks/useMembers';
 export { useRegisterAndCheckout } from './hooks/useRegisterAndCheckout';
 export { useRegisterMember } from './hooks/useRegisterMember';
 export { useRegistrationForm } from './hooks/useRegistrationForm';

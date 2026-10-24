@@ -1,5 +1,27 @@
 import { supabaseAdmin } from "./supabaseAdmin.ts";
 
+// --------------------------------------------------------------------------------------------//
+// TYPES
+// --------------------------------------------------------------------------------------------//
+
+export const PAYMENT_METHODS = ['qr', 'cash', 'paymongo'] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+export type PaymentStatus = 'paid' | 'pending'
+
+export interface Payment {
+  payment_id: string;
+  reference_number: string | null;
+  amount: number | null;
+  payment_method: string | null;
+  payment_status: string | null;
+  paid_at: string | null;
+}
+
+// --------------------------------------------------------------------------------------------//
+// FUNCTIONS
+// --------------------------------------------------------------------------------------------//
+
 export async function getPaymentByReference(reference: string) {
   const { data, error } = await supabaseAdmin
     .from("payments")
@@ -7,8 +29,8 @@ export async function getPaymentByReference(reference: string) {
       payment_status,
       subscriptions (
         subscribers ( email ),
-        plans ( plan_name ),
-        services ( service_name )
+        plans ( plan_name ), 
+        services ( service_name ) 
       )
     `)
     .eq("reference_number", reference)
@@ -18,13 +40,13 @@ export async function getPaymentByReference(reference: string) {
   return data;
 }
 
-export async function deletePendingPayment(subscriptionId: string) {
+export async function deletePendingPayment(subscriptionId: string, reference = "pending") {
   const { error } = await supabaseAdmin
     .from("payments")
     .delete()
     .eq("subscription_id", subscriptionId)
     .eq("payment_status", "pending")
-    .eq("reference_number", "pending");
+    .eq("reference_number", reference);
   if (error) throw error;
 }
 
@@ -34,20 +56,49 @@ export async function getPendingPaymentAmount(subscriptionId: string): Promise<n
     .select("amount")
     .eq("subscription_id", subscriptionId)
     .eq("payment_status", "pending")
-    .single();
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
   if (error || !data) throw new Error("No pending payment record found");
   return Number(data.amount);
 }
 
 export async function setPaymentReference(subscriptionId: string, referenceNumber: string) {
-  const { data, error } = await supabaseAdmin
+  const { data: latest, error: findErr } = await supabaseAdmin
     .from("payments")
-    .update({ reference_number: referenceNumber })
+    .select("payments_id")
     .eq("subscription_id", subscriptionId)
     .eq("payment_status", "pending")
-    .select("payments_id");
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (findErr) throw findErr;
+  if (!latest) throw new Error("No pending payment record found to update");
 
+  const { error } = await supabaseAdmin
+    .from("payments")
+    .update({ reference_number: referenceNumber })
+    .eq("payments_id", latest.payments_id);
   if (error) throw error;
-  if (!data?.length) throw new Error("No pending payment record found to update");
+}
+
+export async function getStalePendingSubscriptionIds(cutoffIso: string): Promise<string[]> {
+  const { data, error } = await supabaseAdmin
+    .from("payments")
+    .select("subscription_id")
+    .eq("payment_status", "pending")
+    .lt("created_at", cutoffIso);
+  if (error) throw error;
+  return [...new Set((data ?? []).map((p) => p.subscription_id))];
+}
+
+export async function deleteStalePendingPayments(subscriptionId: string, cutoffIso: string) {
+  const { error } = await supabaseAdmin
+    .from("payments")
+    .delete()
+    .eq("subscription_id", subscriptionId)
+    .eq("payment_status", "pending")
+    .lt("created_at", cutoffIso);
+  if (error) throw error;
 }

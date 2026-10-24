@@ -6,7 +6,8 @@ import {
   PanelLeftClose,
   type LucideIcon,
   Users,
-  UserCheck
+  UserCheck,
+  Settings
 } from "lucide-react";
 import BrandLogo from "@/components/common/BrandLogo";
 
@@ -33,8 +34,9 @@ export interface SidebarProps {
 
 const DEFAULT_ITEMS: SidebarItem[] = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
+  { key: "subscribers", label: "Subscribers", icon: UserCheck, path: "/admin/subscribers" },
   { key: "pdg-members", label: "PDG Members", icon: Users, path: "/admin/pdg-members" },
-  { key: "subscribers", label: "Subscribers", icon: UserCheck, path: "/admin/subscribers" }
+  { key: "settings", label: "Settings", icon: Settings, path: "/admin/settings" }
 ];
 
 //-----------------------------------------------------------

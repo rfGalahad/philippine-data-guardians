@@ -12,7 +12,7 @@ import {
   toPlanName,
   toPaymentMethod
 } from "./types";
-
+ 
 import {
   one,
   fullName,
@@ -21,7 +21,7 @@ import {
   computeDigitalIdStatus
 } from './helpers';
 
-import { removeMemberPhoto } from "./member-photos";
+import { getMemberPhotoPath, removeMemberPhoto } from "./member-photos";
 import { logActivity } from "./activity-log";
 
 // ---------------------------------------------------------------------------
@@ -462,35 +462,6 @@ export async function updateMember(payload: UpdateMemberPayload) {
   return data;
 }
 
-// FETCH MEMBER FOR REMOVAL
-// RETURNS: PHOTO_URL, SUBSCRIBER_ID
-async function fetchMemberForRemoval(memberId: string): Promise<{
-  photoUrl: string | null;
-  subscriberId: string;
-}> {
-  const { data, error } = await supabase
-    .from("members")
-    .select(`
-      photo_url,
-      subscriber:subscribers ( subscriber_id )
-    `)
-    .eq("member_id", memberId)
-    .single()
-
-  if (error) throw error;
-
-  const subscriber = one(data.subscriber);
-
-  if (!subscriber) {
-    throw new Error(`Member ${memberId} has no linked subscriber`);
-  }
-
-  return { 
-    photoUrl: data.photo_url, 
-    subscriberId: subscriber.subscriber_id 
-  };
-}
-
 // DELETE A MEMBER FROM MEMBERS VIA MEMBER_ID
 export async function deleteMember(member_id: string): Promise<void> {
   const { data, error } = await supabase
@@ -506,14 +477,43 @@ export async function deleteMember(member_id: string): Promise<void> {
   }
 }
 
+// FETCH PHOTO URLS OF ALL MEMBERS UNDER A SUBSCRIBER
+// Must run before the subscriber delete, because the cascade removes the rows.
+export async function fetchMemberPhotosForRemoval(subscriberId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("members")
+    .select("photo_url")
+    .eq("subscriber_id", subscriberId);
+ 
+  if (error) throw error;
+ 
+  return (data ?? [])
+    .map((member) => member.photo_url as string | null)
+    .filter((url): url is string => Boolean(url));
+}
+
+// FETCH MEMBER FOR REMOVAL
+// RETURNS: PHOTO_URL
+async function fetchMemberForRemoval(memberId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("members")
+    .select("photo_url")
+    .eq("member_id", memberId)
+    .single();
+
+  if (error) throw error;
+
+  return data.photo_url;
+}
+
 // REMOVE MEMBER'S DATA & PHOTO
-// 1. FETCH PHOTO_URL & SUBSCRIBER_ID
+// 1. FETCH PHOTO_URL
 // 2. DELETE MEMBER
-// 3. REMOVE MEMBER PHOTO 
+// 3. REMOVE MEMBER PHOTO
 export async function removeMember(memberIds: string[]): Promise<boolean> {
   try {
     for (const memberId of memberIds) {
-      const { photoUrl } = await fetchMemberForRemoval(memberId);
+      const photoUrl = await fetchMemberForRemoval(memberId);
       await deleteMember(memberId);
 
       await logActivity(
@@ -521,9 +521,10 @@ export async function removeMember(memberIds: string[]): Promise<boolean> {
         memberId,
         `deleted member #${memberId}`
       );
-      
-      if (photoUrl) {
-        try { await removeMemberPhoto(photoUrl) } 
+
+      const path = photoUrl ? getMemberPhotoPath(photoUrl) : null;
+      if (path) {
+        try { await removeMemberPhoto(path) }
         catch (err) { console.error(`Failed to remove photo for member ${memberId}:`, err) }
       }
     }

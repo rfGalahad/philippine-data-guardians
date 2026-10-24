@@ -4,11 +4,18 @@ import { supabaseAdmin } from "./supabaseAdmin.ts";
 // TYPES
 // ---------------------------------------------------------------------------
 
-export type PlanName = "student_academic" | "professional";
+export const PLAN_NAMES = ['student_academic', 'professional'] as const;
+export type PlanName = (typeof PLAN_NAMES)[number];
 
 export interface PlanInfo {
   plan_id: string;
   service_id: string;
+  price: number;
+}
+
+export interface Plan {
+  plan_id: string;
+  plan_name: string;
   price: number;
 }
 

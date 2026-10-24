@@ -14,15 +14,22 @@ import Review from '../components/form/ReviewDetails';
 import { useRegisterAndCheckout } from '../hooks/useRegisterAndCheckout';
 import { RenewMembershipDialog } from '../components/RenewMembershipDialog';
 
+// ---------------------------------------------------------------------------
+// CONSTANTS
+// ---------------------------------------------------------------------------
 
 const STEPS: string[] = [
   'Consent Form',
   'Personal Information',
   'Address Details',
   'Upload Picture',
-  'Membership Type',
+  'Membership Type', 
   'Review'
 ];
+
+// ---------------------------------------------------------------------------
+// REGISTRATION PAGE
+// ---------------------------------------------------------------------------
 
 export const RegistrationPage = () => {
 

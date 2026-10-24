@@ -41,3 +41,10 @@ export async function removeMemberPhoto(path: string): Promise<void> {
   const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([path]);
   if (error) throw new Error(`Failed to remove photo at ${path}: ${error.message}`);
 }
+
+// BULK REMOVAL
+export async function removeMemberPhotos(paths: string[]): Promise<void> {
+  if (paths.length === 0) return;
+  const { error } = await supabase.storage.from(STORAGE_BUCKET).remove(paths);
+  if (error) throw new Error(`Failed to remove ${paths.length} photo(s): ${error.message}`);
+}

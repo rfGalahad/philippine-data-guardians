@@ -32,6 +32,7 @@ const cancelledMessage = (serviceName?: ServiceName) => (
 //-----------------------------------------------------------
 // STYLES
 //-----------------------------------------------------------
+
 const keyframes = `
   @keyframes ripple { 0% { transform: scale(0.85); opacity: 0.5; } 100% { transform: scale(1.9); opacity: 0; } }
   @keyframes popIn  { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }

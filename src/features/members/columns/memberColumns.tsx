@@ -7,7 +7,7 @@ import { getInitials } from "@/utils/string";
 //-----------------------------------------------------------
 // CONSTANTS
 //-----------------------------------------------------------
-
+ 
 const SUB_STATUS_STYLES: Record<string, string> = {
   active: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
   expired: "bg-zinc-100 text-zinc-500 ring-zinc-500/20",

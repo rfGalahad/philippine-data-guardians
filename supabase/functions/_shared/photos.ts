@@ -37,3 +37,9 @@ export async function uploadPhoto(photo: File, ext: string) {
 export async function removePhoto(path: string) {
   await supabaseAdmin.storage.from(BUCKET).remove([path]);
 }
+
+export function photoPathFromUrl(url?: string | null): string | null {
+  const marker = `/${BUCKET}/`;
+  const i = url?.indexOf(marker) ?? -1;
+  return i === -1 ? null : url!.slice(i + marker.length).split("?")[0];
+}

@@ -10,6 +10,7 @@ import PrivacyImpactAssessmentPage from "@/features/services/PrivacyImpactAssess
 
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import SubscribersPage from "@/features/subscribers/pages/SubscribersPage";
+import { SettingsPage } from "@/features/settings";
 
 import PaymentSuccessPage from "@/components/feedback/PaymentSuccessPage";
 import PaymentCancelledPage from "./components/feedback/PaymentCancelledPage";
@@ -75,6 +76,7 @@ function App() {
                     <Route path='dashboard' element={<DashboardPage />} />
                     <Route path='pdg-members' element={<PDGMembersPage />} />
                     <Route path='subscribers' element={<SubscribersPage />} />
+                    <Route path='settings' element={<SettingsPage />} />
                 </Route>
               </Route>
             </Routes>

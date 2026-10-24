@@ -3,7 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 
 import Table from "@/components/dataDisplay/CustomTable/DataTable";
 import TableSearch from "@/components/dataDisplay/CustomTable/TableSearch";
-import TableFilters, { type FilterConfig } from "@/components/dataDisplay/CustomTable/TableFilters";
+import TableFilters from "@/components/dataDisplay/CustomTable/TableFilters";
 import TablePagination from "@/components/dataDisplay/CustomTable/TablePagination";
 import TableActions, { type TableAction } from "@/components/dataDisplay/CustomTable/TableActions";
 import SlideOverPanel from "@/components/dataDisplay/SlideOverPanel";
@@ -18,27 +18,39 @@ import { useTogglePanel } from "@/hooks/useTogglePanel";
 
 import AddMemberContent from "../components/contents/AddMemberContent";
 import MemberDetailContent from "../components/contents/MemberDetailContent";
-
-import { buildMemberColumns } from "../columns/memberColumns";
-import { useFetchMembers } from "../hooks/useFetchMembers";
-import { useDeleteMember } from "../hooks/useDeleteMember";
 import UpdateMemberContent from "../components/contents/UpdateMemberContent";
 
+import { buildMemberColumns } from "../columns/memberColumns";
+import { useMembers } from "../hooks/useMembers";
+import { useDeleteMember } from "../hooks/useDeleteMember";
 
- 
+
+// ---------------------------------------------------------------------------
+// TYPES
+// ---------------------------------------------------------------------------
+
 const PAGE_SIZE = 10;
+
+const EMPTY: MemberListRow[] = [];
+
+// ---------------------------------------------------------------------------
+// PDG MEMBERS PAGE
+// ---------------------------------------------------------------------------
 
 export default function PDGMembersPage() {
 
-  const fetchMembers = useFetchMembers();
+  const {
+    data: members = EMPTY,
+    isPending,
+    error,
+    refetch,
+  } = useMembers();
+
   const addMemberPanel = useTogglePanel();
   const memberDetailPanel = useDetailPanel(fetchMemberDetail);
   const updateMemberPanel = useDetailPanel(fetchMemberDetail);
   
-  const deleteMember = useDeleteMember({
-    onDeleted: (deletedIds) =>
-      fetchMembers.setMembers((prev) => prev.filter((m) => !deletedIds.has(m.memberId))),
-  });
+  const deleteMember = useDeleteMember();
 
   // DATA TABLE
   const columns = useMemo(() => buildMemberColumns(memberDetailPanel.openPanel, updateMemberPanel.openPanel), [memberDetailPanel.openPanel, updateMemberPanel.openPanel]);
@@ -54,7 +66,7 @@ export default function PDGMembersPage() {
 
   // TABLE SEARCH
   const query = useTableQuery<MemberListRow>(
-    fetchMembers.members,
+    members,
     (m, q) => m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q),
     (m, f) =>
       (!f.subscriptionStatus?.length || f.subscriptionStatus.includes(m.subscriptionStatus)) &&
@@ -66,23 +78,23 @@ export default function PDGMembersPage() {
   );
 
   // TABLE FILTERS
-  const filterConfigs: FilterConfig[] = useMemo(() => [
+  const filterConfigs = useMemo(() => [
     { 
       key: "subscriptionStatus", 
       label: "Status", 
-      options: optionsFrom(fetchMembers.members.map((m) => m.subscriptionStatus)) 
+      options: optionsFrom(members.map((m) => m.subscriptionStatus)) 
     },
     { 
       key: "planName", 
       label: "Plan", 
-      options: optionsFrom(fetchMembers.members.map((m) => m.planName)) 
+      options: optionsFrom(members.map((m) => m.planName)) 
     },
     { 
       key: "paymentStatus", 
       label: "Payment", 
-      options: optionsFrom(fetchMembers.members.map((m) => m.paymentStatus)) 
+      options: optionsFrom(members.map((m) => m.paymentStatus)) 
     },
-  ], [fetchMembers.members]);
+  ], [members]);
 
   // TABLE ACTIONS
   const primaryActions: TableAction[] = [
@@ -108,7 +120,7 @@ export default function PDGMembersPage() {
     },
   ];
 
-  const activeCount = fetchMembers.members.filter((m) => m.subscriptionStatus === "active").length;
+  const activeCount = members.filter((m) => m.subscriptionStatus === "active").length;
 
   return (
     <div className="w-full px-8 py-8">
@@ -118,7 +130,7 @@ export default function PDGMembersPage() {
           PDG Members
         </h1>
         <p className="mt-1 font-body text-sm text-text-secondary">
-          {fetchMembers.members.length} total · {activeCount} active
+          {members.length} total · {activeCount} active
           {query.isFiltered && <> · <span className="text-text-primary">{query.filtered.length}</span> matching</>}
         </p>
       </div>
@@ -160,8 +172,8 @@ export default function PDGMembersPage() {
         selectable
         selectedKeys={deleteMember.selectedIds} 
         onSelectionChange={deleteMember.setSelectedIds} 
-        loading={fetchMembers.loading}
-        error={fetchMembers.error}
+        loading={isPending}
+        error={error?.message ?? null}
       />
 
       {/* TABLE PAGINATION */}
@@ -192,7 +204,7 @@ export default function PDGMembersPage() {
       >
         <AddMemberContent 
           onClose={addMemberPanel.closePanel} 
-          onSuccess={fetchMembers.refetch} 
+          onSuccess={() => refetch()} 
         />
       </SlideOverPanel>
 
@@ -219,7 +231,7 @@ export default function PDGMembersPage() {
           <UpdateMemberContent 
             detail={updateMemberPanel.detail} 
             onClose={updateMemberPanel.closePanel} 
-            onSuccess={fetchMembers.refetch}
+            onSuccess={() => refetch()}
           />
         )}
       </SlideOverPanel>

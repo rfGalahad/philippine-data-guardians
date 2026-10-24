@@ -10,7 +10,7 @@ import {
   UploadPicture,
   MembershipPlan,
   PaymentMethod,
-  ReviewDetails
+  ReviewDetails 
 } from "../form";
 
 import RegistrationStepper from "../form/RegistrationStepper";

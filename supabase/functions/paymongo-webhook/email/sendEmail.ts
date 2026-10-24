@@ -50,7 +50,7 @@ async function sendViaResend(
       subject,
       html,
     }),
-  });
+  }); 
 
   if (!res.ok) {
     const errorText = await res.text();

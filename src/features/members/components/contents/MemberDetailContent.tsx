@@ -10,7 +10,7 @@ import { IDTemplate } from "../IDTemplate";
 interface MemberDetailContentProps {
   detail: MemberDetail;
 }
-
+ 
 // ---------------------------------------------------------------------------
 // COMPONENT
 // ---------------------------------------------------------------------------
