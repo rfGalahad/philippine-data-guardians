@@ -25,17 +25,21 @@ export function getMemberPhotoUrl(path: string): string {
 }
 
 export async function uploadMemberPhoto(file: File): Promise<string> {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${uuidv4()}.${fileExt}`;
+  const fileExt = file.name.includes(".") ? file.name.split(".").pop() : undefined;
+  const fileName = fileExt ? `${uuidv4()}.${fileExt}` : uuidv4();
   const filePath = `${PHOTO_FOLDER}/${fileName}`;
 
   const { error } = await supabase.storage
     .from(STORAGE_BUCKET)
-    .upload(filePath, file, { upsert: true });
+    .upload(filePath, file, {
+      upsert: false,
+      contentType: file.type || undefined,
+    });
 
   if (error) throw new Error(`Failed to upload photo: ${error.message}`);
   return filePath;
 }
+
 
 export async function removeMemberPhoto(path: string): Promise<void> {
   const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([path]);
