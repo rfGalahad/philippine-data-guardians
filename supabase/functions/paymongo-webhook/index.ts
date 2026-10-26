@@ -17,7 +17,7 @@ const WEBHOOK_EVENT = "checkout_session.payment.paid";
 export default {
   fetch: withSupabase({ auth: "none" }, async (req) => {
     try {
-      const rawBody = await req.text();
+      const rawBody = await req.text(); 
 
       const isValid = await verifySignature(req, rawBody);
       if (!isValid) {
@@ -25,7 +25,7 @@ export default {
         return Response.json({ error: "Invalid signature" }, { status: 401 });
       } 
 
-      const body = JSON.parse(rawBody);
+      const body = JSON.parse(rawBody); 
       const eventType = body?.data?.attributes?.type;
 
       if (eventType !== WEBHOOK_EVENT) {
@@ -33,11 +33,7 @@ export default {
         return Response.json({ received: true }, { status: 200 });
       }
 
-      console.log("BODY", body);
-
       const attributes = body?.data?.attributes?.data?.attributes;
-
-      console.log("ATTRIBUTES", attributes);
 
       // const name = attributes?.billing?.name;
       const email: string | undefined = attributes?.billing?.email;
@@ -55,7 +51,7 @@ export default {
 
       // EDGE FUNCTION for HANDLING MEMBERSHIP PAYMENT
       if (planName.includes("PDG Membership")) {
-        return handleMembershipPayment({ name, email, planName, referenceNumber });
+        return handleMembershipPayment(referenceNumber, planName);
       }
 
       // EDGE FUNCTION for HANDLING SUBSCRIPTION PAYMENT

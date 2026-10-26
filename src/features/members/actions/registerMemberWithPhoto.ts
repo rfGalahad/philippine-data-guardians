@@ -1,21 +1,21 @@
-import { removeMemberPhoto, uploadMemberPhoto } from "@/lib/supabase/member-photos";
+import { getMemberPhotoUrl, removeMemberPhoto, uploadMemberPhoto } from "@/lib/supabase/member-photos";
 import type { RegistrationValues } from "../schema";
-import { registerNewMember } from "./registerNewMember";
-import { ActiveMembershipError, checkEmailMembership } from "@/lib/supabase/members";
+import { ActiveMembershipError, checkEmailMembership, registerMemberAsAdmin } from "@/lib/supabase/members";
+import { getPlan } from "@/lib/supabase/plan";
+import { createMemberPayload } from "../utils/payload";
 
  
+
 export async function registerMemberWithPhoto(
-  values: RegistrationValues, 
-  plan: string,
+  values: RegistrationValues,
+  planId: string,
   opts: { confirmRenewal?: boolean } = {}
 ) {
 
-  // UPLOAD MEMBER PHOTO TO SUPABASE STORAGE
   if (!(values.uploadPicture instanceof File)) {
     throw new Error("Please upload a valid photo file.");
   }
 
-  // PROMPT RENEWAL IF EMAIL EXISTS AND ACTIVE
   if (!opts.confirmRenewal) {
     const status = await checkEmailMembership(values.emailAddress);
     if (status.exists && status.is_active) {
@@ -23,31 +23,26 @@ export async function registerMemberWithPhoto(
     }
   }
 
-  // UPLOAD PHOTO TO SUPABASE
-  const photoPath = await uploadMemberPhoto(values.uploadPicture);
+  // Fetch the plan BEFORE uploading, so a bad plan doesn't leave an orphan photo
+  const plan = await getPlan(planId);
 
+  const photoPath = await uploadMemberPhoto(values.uploadPicture);
   try {
-    const paymentMethod = values.method ?? "paymongo";
-    const paymentStatus = paymentMethod === "paymongo"
-      ? "pending"
-      : "paid"; 
+    const method = values.method ?? "paymongo";
+    const payload = createMemberPayload({
+      values,
+      photoUrl: getMemberPhotoUrl(photoPath),
+      plan,
+      payment: { method, referenceNumber: values.referenceNumber ?? "pending" },
+      paymentStatus: method === "paymongo" ? "pending" : "paid",
+    });
 
     return { 
-      result: await registerNewMember(
-        values, 
-        plan, 
-        photoPath,
-        {
-          method: paymentMethod,
-          referenceNumber: values.referenceNumber ?? "pending"
-        },
-        paymentStatus,
-        opts
-      ),  
+      result: await registerMemberAsAdmin(payload), 
       photoPath 
     };
   } catch (error) {
     await removeMemberPhoto(photoPath);
     throw error;
   }
-}  
+}

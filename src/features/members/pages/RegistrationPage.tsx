@@ -23,7 +23,7 @@ const STEPS: string[] = [
   'Personal Information',
   'Address Details',
   'Upload Picture',
-  'Membership Type', 
+  'Membership Type',  
   'Review'
 ];
 
@@ -34,7 +34,14 @@ const STEPS: string[] = [
 export const RegistrationPage = () => {
 
   const form = useRegistrationForm();
-  const { checkout, loading, renewPrompt, confirmRenewal, cancelRenewal } = useRegisterAndCheckout(form);
+  
+  const { 
+    checkout, 
+    loading, 
+    renewPrompt, 
+    confirmRenewal, 
+    cancelRenewal 
+  } = useRegisterAndCheckout(form);
 
   const { 
     activeStep, 

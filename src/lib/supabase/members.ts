@@ -401,50 +401,49 @@ export async function checkEmailMembership(email: string): Promise<EmailMembersh
   return data as EmailMembershipStatus;
 }
 
+export type RegisterMemberResult = {
+  subscriber_id: string;
+  subscription_id: string;
+  member_id: string;
+};
+
+export type MemberRegistrationErrorCode = "unauthorized" | "duplicate" | "unknown";
+
+export class MemberRegistrationError extends Error {
+  code: MemberRegistrationErrorCode;
+
+  constructor(message: string, code: MemberRegistrationErrorCode) {
+    super(message);
+    this.name = "MemberRegistrationError";
+    this.code = code;
+  }
+}
+
+
 // REGISTER/ADD A MEMBER
 // RETURNS: 
-export async function registerMember(
-  payload: MemberPayload,
-  options: { confirmRenewal?: boolean } = {}
-) {
-  
-  const { data, error } = await supabase.rpc("register_member", {
-    ...payload,
-    p_confirm_renewal: options.confirmRenewal ?? false,
-  });
+export async function registerMemberAsAdmin(
+  payload: MemberPayload
+): Promise<RegisterMemberResult> {
+  const { data, error } = await supabase.rpc("register_member_via_admin", payload);
 
-  if (error) throw error;
-
-  if (data?.requires_confirmation) {
-    throw new ActiveMembershipError(data.expires_at ?? null);
+  if (error) {
+    if (error.code === "42501") {
+      throw new MemberRegistrationError(
+        "You are not authorized to register members.",
+        "unauthorized"
+      );
+    }
+    if (error.code === "23505") {
+      throw new MemberRegistrationError(
+        "A member with these details already exists.",
+        "duplicate"
+      );
+    }
+    throw new MemberRegistrationError(error.message, "unknown");
   }
 
-  const subscriberId = data?.subscriber_id;
-
-  if (!subscriberId) {
-    throw new Error("Registration succeeded but subscriber_id was not returned.");
-  } 
-
-  const { data: activationData, error: activationError } =
-    await supabase.rpc("activate_member", {
-      p_subscriber_id: subscriberId,
-    });
-
-  if (activationError) throw activationError;
-
-  const fullName = payload.p_first_name + " " + payload.p_last_name;
-
-  await logActivity(
-    "member_added",
-    data.member_id,
-    `added a member`,
-    fullName
-  );
-
-  return {
-    registration: data,
-    activation: activationData,
-  };
+  return data as RegisterMemberResult;
 }
 
 // UPDATE A MEMBER VIA MEMBER_ID

@@ -14,7 +14,7 @@ export interface Payment {
   reference_number: string | null;
   amount: number | null;
   payment_method: string | null;
-  payment_status: string | null;
+  payment_status: string | null; 
   paid_at: string | null;
 }
 
@@ -50,37 +50,12 @@ export async function deletePendingPayment(subscriptionId: string, reference = "
   if (error) throw error;
 }
 
-export async function getPendingPaymentAmount(subscriptionId: string): Promise<number> {
-  const { data, error } = await supabaseAdmin
-    .from("payments")
-    .select("amount")
-    .eq("subscription_id", subscriptionId)
-    .eq("payment_status", "pending")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error || !data) throw new Error("No pending payment record found");
-  return Number(data.amount);
-}
-
-export async function setPaymentReference(subscriptionId: string, referenceNumber: string) {
-  const { data: latest, error: findErr } = await supabaseAdmin
-    .from("payments")
-    .select("payments_id")
-    .eq("subscription_id", subscriptionId)
-    .eq("payment_status", "pending")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (findErr) throw findErr;
-  if (!latest) throw new Error("No pending payment record found to update");
-
+export async function setPaymentReference(paymentId: string, reference: string) {
   const { error } = await supabaseAdmin
     .from("payments")
-    .update({ reference_number: referenceNumber })
-    .eq("payments_id", latest.payments_id);
-  if (error) throw error;
+    .update({ reference_number: reference })
+    .eq("payment_id", paymentId);
+  if (error) throw new Error(`Failed to set payment reference: ${error.message}`);
 }
 
 export async function getStalePendingSubscriptionIds(cutoffIso: string): Promise<string[]> {

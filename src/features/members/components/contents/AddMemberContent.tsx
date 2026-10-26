@@ -30,7 +30,7 @@ interface AddMemberContentProps {
 //-----------------------------------------------------------
 
 const STEPS: string[] = [
-  "Personal Info",
+  "Personal Info", 
   "Address",
   "Upload Picture",
   "Membership",

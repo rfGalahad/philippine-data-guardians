@@ -1,40 +1,49 @@
+import { supabaseAdmin } from "./supabaseAdmin.ts";
 
 // ---------------------------------------------------------------------------
 // TYPES
 // ---------------------------------------------------------------------------
-
-export interface SubscriberDetail {
-  subscriberId: string;
-  firstName: string;
-  middleName: string | null;
-  lastName: string;
-  suffix: string | null;
-  email: string;
-  contactNumber: string | null;
-  createdAt: string;
-  updatedAt: string;
-  subscriptions: {
-    subscriptionId: string;
-    status: string;
-    startedAt: string;
-    expiresAt: string | null;
-    serviceName: string;
-    planName: string;
-    payments: Payment[];
-  }[];
-}
-
-export interface Subscriber {
+ 
+export interface MemberDetails {
   subscriber_id: string;
-  first_name: string;
-  middle_name: string | null;
-  last_name: string;
-  suffix: string | null;
+  name: string;
   email: string;
-  contact_number: string | null;
+  memberId: string;
+  membershipType: string;
+  memberSince: Date | null;
 }
 
-export interface SubscriberFull extends Subscriber {
-  created_at: string;
-  updated_at: string;
+// ---------------------------------------------------------------------------
+// QUERIES
+// ---------------------------------------------------------------------------
+
+export async function getMemberDetails(subscriberId: string): Promise<MemberDetails | null> {
+  const { data, error } = await supabaseAdmin
+    .from("subscribers")
+    .select(
+      `subscriber_id, first_name, middle_name, last_name, suffix, email,
+       members(member_id),
+       subscriptions(created_at, plans(plan_name))`,
+    )
+    .eq("subscriber_id", subscriberId)
+    // Latest subscription first, and only fetch one
+    .order("created_at", { referencedTable: "subscriptions", ascending: false })
+    .limit(1, { referencedTable: "subscriptions" })
+    .maybeSingle();
+ 
+  if (error) throw error;
+  if (!data) return null;
+ 
+  const subscription = data.subscriptions?.[0];
+ 
+  return {
+    subscriber_id: data.subscriber_id,
+    name: [data.first_name, data.middle_name, data.last_name, data.suffix]
+      .filter(Boolean)
+      .join(" "),
+    email: data.email,
+    memberId: data.members?.[0]?.member_id ?? "",
+    membershipType: subscription?.plans?.plan_name ?? "Member",
+    memberSince: subscription?.created_at ? new Date(subscription.created_at) : null,
+  };
 }

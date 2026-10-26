@@ -18,41 +18,42 @@ function maskEmail(email: string): string {
 // HANDLER
 // --------------------------------------------------------------------------------------------//
 
-const handler = withSupabase({ auth: ["publishable"] }, async (req) => {
-  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+const handler = (outerReq: Request) =>
+  withSupabase({ auth: ["publishable"] }, async (req) => {
+    if (req.method !== "POST") return json(outerReq, { error: "Method not allowed" }, 405);
 
-  let reference: unknown;
-  try {
-    ({ reference } = await req.json());
-  } catch {
-    return json({ paid: false, error: "Malformed request" }, 400);
-  }
-
-  if (typeof reference !== "string" || !UUID_RE.test(reference)) {
-    return json({ paid: false, error: "Invalid reference" }, 400);
-  }
-
-  try {
-    const payment = await getPaymentByReference(reference);
-
-    // Same response for "not found" and "pending"
-    if (!payment || payment.payment_status !== "paid") {
-      return json({ paid: false });
+    let reference: unknown;
+    try {
+      ({ reference } = await req.json());
+    } catch {
+      return json(outerReq, { paid: false, error: "Malformed request" }, 400);
     }
 
-    const sub = payment.subscriptions;
-    const email = sub?.subscribers?.email;
+    if (typeof reference !== "string" || !UUID_RE.test(reference)) {
+      return json(outerReq, { paid: false, error: "Invalid reference" }, 400);
+    }
 
-    return json({
-      paid: true,
-      email: email ? maskEmail(email) : null,
-      serviceName: sub?.services?.service_name ?? null,
-    });
-  } catch (e) {
-    console.error("[verify-checkout]", e);
-    return json({ paid: false, error: "Internal error" }, 500);
-  }
-});
+    try {
+      const payment = await getPaymentByReference(reference);
+
+      // Same response for "not found" and "pending"
+      if (!payment || payment.payment_status !== "paid") {
+        return json(outerReq, { paid: false });
+      }
+
+      const sub = payment.subscriptions;
+      const email = sub?.subscribers?.email;
+
+      return json(outerReq, {
+        paid: true,
+        email: email ? maskEmail(email) : null,
+        serviceName: sub?.services?.service_name ?? null,
+      });
+    } catch (e) {
+      console.error("[verify-checkout]", e);
+      return json(outerReq, { paid: false, error: "Internal error" }, 500);
+    }
+  })(outerReq);
 
 // --------------------------------------------------------------------------------------------//
 // MAIN FUNCTION
@@ -60,7 +61,7 @@ const handler = withSupabase({ auth: ["publishable"] }, async (req) => {
 
 export default {
   fetch: (req: Request) => {
-    if (req.method === "OPTIONS") return preflight();
+    if (req.method === "OPTIONS") return preflight(req);
     return handler(req);
   },
 };

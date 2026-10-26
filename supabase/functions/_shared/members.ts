@@ -19,7 +19,7 @@ export interface MemberPayload {
   p_city_municipality: string;
   p_province: string;
   p_photo_url: string;
-  p_service_id: string;
+  p_service_id: string; 
   p_plan_id: string;
   p_amount: number;
   p_payment_method: PaymentMethod;

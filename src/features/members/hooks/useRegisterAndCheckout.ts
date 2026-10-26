@@ -5,6 +5,10 @@ import { ActiveMembershipError } from "@/lib/supabase/members";
 import { registerAndCheckout } from "../actions/registerAndCheckout";
 import type { AppForm } from "./useRegistrationForm";
 
+// ---------------------------------------------------------------------------
+// HOOK
+// ---------------------------------------------------------------------------
+
 export function useRegisterAndCheckout(form: AppForm) {
 
   const [loading, setLoading] = useState(false);

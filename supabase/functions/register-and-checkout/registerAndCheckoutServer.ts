@@ -2,7 +2,7 @@ import {
   ActiveMembershipError,
   checkEmailMembership,
   deleteMember,
-  registerMember,
+  registerMember, 
 } from "../_shared/members.ts";
 import { deletePendingPayment } from "../_shared/payments.ts";
 import { removePhoto, uploadPhoto, validatePhoto } from "../_shared/photos.ts";
@@ -17,7 +17,7 @@ export async function registerAndCheckoutServer(
   values: RegistrationValues,
   photo: File,
   plan: string,
-  opts: { confirmRenewal: boolean },
+  opts: { confirmRenewal: boolean; baseUrl?: string },
 ) {
   // 1. VALIDATE PHOTO
   const ext = validatePhoto(photo);
@@ -58,10 +58,13 @@ export async function registerAndCheckoutServer(
 
     // 6. CHECKOUT
     const checkout = await createCheckout({
-      subscriptionId: reg.subscription_id,
+      paymentId: reg.payment_id,
+      amount: Number(reg.amount),
       customerName: getFullName(values),
       email: values.emailAddress,
       description: `${plan} - PDG Membership Registration`,
+      serviceName: "membership",
+      baseUrl: opts.baseUrl
     });
 
     return { url: checkout.url };

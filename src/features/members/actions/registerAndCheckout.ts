@@ -10,7 +10,7 @@ export async function registerAndCheckout(
 ) {
   const { uploadPicture, ...rest } = values;
 
-  if (!(uploadPicture instanceof File)) {
+  if (!(uploadPicture instanceof File)) { 
     throw new Error("Please upload a valid photo file.");
   }
 

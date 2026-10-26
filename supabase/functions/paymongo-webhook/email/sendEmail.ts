@@ -7,7 +7,7 @@ import { membershipEmail } from "./membershipEmail.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 const RESEND_API_URL = "https://api.resend.com/emails";
-const EMAIL_FROM = "Philippine Data Guardians <members@phdataguardians.org>";
+const EMAIL_FROM = "Philippine Data Guardians <members@philippinedataguardians.org>";
 const LOGO_URL = "https://res.cloudinary.com/diuruuyas/image/upload/v1779172364/logo-pdg-1_gojiba.png";
 
 //-----------------------------------------------------------
@@ -64,7 +64,10 @@ async function sendViaResend(
 
 export default async function sendEmail(input: SendEmailInput) {
 
-  if (input.subscriptionType === "membership") {
+  const membership = input.subscriptionType === "membership";
+  const privacyLens = input.subscriptionType === "privacy_impact_assessment";
+
+  if (membership) {
     await sendViaResend(
       input.email, // to
       `You're officially a PDG member!`, // subject
@@ -72,26 +75,29 @@ export default async function sendEmail(input: SendEmailInput) {
         input.name,
         input.email, 
         input.memberId,
-        LOGO_URL 
+        LOGO_URL,
+        input.membershipType,
+        input.memberSince 
       ),
     );
     return;
+  } else if (privacyLens) {
+
+    const subject = isExisting
+      ? `You already have an account — sign in here`
+      : `Welcome! Your ${planName} account is ready`;
+
+    await sendViaResend(
+      email,
+      subject,
+      subscriptionEmail(
+        planName, 
+        actionLink, 
+        LOGO_URL, 
+        isExisting
+      ),
+    );
   }
 
-  const { email, planName, actionLink, isExisting } = input;
-
-  const subject = isExisting
-    ? `You already have an account — sign in here`
-    : `Welcome! Your ${planName} account is ready`;
-
-  await sendViaResend(
-    email,
-    subject,
-    subscriptionEmail(
-      planName, 
-      actionLink, 
-      LOGO_URL, 
-      isExisting
-    ),
-  );
+  
 }

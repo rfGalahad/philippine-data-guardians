@@ -1,13 +1,11 @@
 import { confirmMembershipPayment } from "../../_shared/members.ts";
+import { getMemberDetails } from "../../_shared/subscribers.ts";
+
 import { createNotification } from "../services/notificationService.ts";
 import sendEmail from "../email/sendEmail.ts";
 
-export async function handleMembershipPayment({
-  name,
-  email,
-  planName,
-  referenceNumber,
-}: MembershipPaymentProps) {
+
+export async function handleMembershipPayment(referenceNumber: string, planName: string) { 
   
   // CONFIRM PAYMENT
   let result;
@@ -46,7 +44,21 @@ export async function handleMembershipPayment({
 
   // SEND EMAIL
   try {
-    await sendEmail({ name, email, memberId, subscriptionType: "membership", planName });
+    const member = await getMemberDetails(subscriberId);
+
+    if (!member?.email) {
+      console.error("[webhook] email_skipped_no_member_or_email", { subscriberId });
+    } else {
+      await sendEmail({
+        name: member.name,
+        email: member.email,
+        memberId,
+        subscriptionType: "membership",
+        planName,
+        memberShipType: member.membershipType,
+        memberSince: member.memberSince
+      });
+    }
   } catch (e) {
     console.error("[webhook] email_failed", e);
   }
