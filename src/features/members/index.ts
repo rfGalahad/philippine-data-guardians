@@ -15,5 +15,4 @@ export { useUpdateMember } from './hooks/useUpdateMember';
 // ACTIONS
 export { registerAndCheckout } from './actions/registerAndCheckout';
 export { registerMemberWithPhoto } from './actions/registerMemberWithPhoto';
-export { registerNewMember } from './actions/registerNewMember';
 
