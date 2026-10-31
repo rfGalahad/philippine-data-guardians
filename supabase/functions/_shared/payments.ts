@@ -40,13 +40,12 @@ export async function getPaymentByReference(reference: string) {
   return data;
 }
 
-export async function deletePendingPayment(subscriptionId: string, reference = "pending") {
+export async function deletePendingPayment(subscriptionId: string) {
   const { error } = await supabaseAdmin
     .from("payments")
     .delete()
     .eq("subscription_id", subscriptionId)
     .eq("payment_status", "pending")
-    .eq("reference_number", reference);
   if (error) throw error;
 }
 

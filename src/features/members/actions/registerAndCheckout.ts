@@ -12,7 +12,7 @@ export async function registerAndCheckout(
 
   if (!(uploadPicture instanceof File)) { 
     throw new Error("Please upload a valid photo file.");
-  }
+  } 
 
   const body = new FormData();
   body.append("photo", uploadPicture);

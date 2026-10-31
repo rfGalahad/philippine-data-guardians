@@ -93,3 +93,26 @@ export async function verifyTotp(factorId: string, code: string) {
   const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code });
   if (error) throw error;
 }
+
+const normalize = (email: string) => email.trim().toLowerCase();
+
+export async function sendEmailOtp(email: string) {
+  const { error } = await supabase.auth.signInWithOtp({
+    email: normalize(email),
+    options: { shouldCreateUser: true }, // members aren't auth users yet
+  });
+  if (error) throw error;
+}
+
+export async function verifyEmailOtp(email: string, token: string) {
+  const { error } = await supabase.auth.verifyOtp({
+    email: normalize(email),
+    token,
+    type: "email",
+  });
+  if (error) throw error;
+}
+
+export async function clearVerifiedSession() {
+  await supabase.auth.signOut();
+}

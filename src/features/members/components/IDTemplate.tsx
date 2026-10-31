@@ -26,7 +26,7 @@ export const IDTemplate = ({
   memberId,
   fullName,
   photoUrl,
-  plan,
+  plan, 
   address
 }: IDTemplateProps) => {
 

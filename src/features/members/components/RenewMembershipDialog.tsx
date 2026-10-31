@@ -2,7 +2,7 @@ import ConfirmDialog from "@/components/feedback/ConfirmDialog";
 
 interface RenewMembershipDialogProps {
   expiresAt: string | null;
-  onConfirm: () => void;
+  onConfirm: () => void; 
   onCancel: () => void;
 }
 

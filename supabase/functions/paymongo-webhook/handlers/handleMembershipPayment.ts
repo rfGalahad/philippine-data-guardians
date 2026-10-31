@@ -1,5 +1,6 @@
 import { confirmMembershipPayment } from "../../_shared/members.ts";
 import { getMemberDetails } from "../../_shared/subscribers.ts";
+import { removePhoto, photoPathFromUrl } from "../../_shared/photos.ts";
 
 import { createNotification } from "../services/notificationService.ts";
 import sendEmail from "../email/sendEmail.ts";
@@ -28,6 +29,15 @@ export async function handleMembershipPayment(referenceNumber: string, planName:
   }
 
   const { subscriber_id: subscriberId, member_id: memberId } = result;
+
+  if (result.replaced_photo_url) {
+    try {
+      const path = photoPathFromUrl(result.replaced_photo_url);
+      if (path) await removePhoto(path);
+    } catch (e) {
+      console.error("[webhook] old_photo_cleanup_failed", e);
+    }
+  }
 
   // SEND NOTIFICATION
   try {

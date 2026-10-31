@@ -35,7 +35,8 @@ export async function uploadPhoto(photo: File, ext: string) {
 }
 
 export async function removePhoto(path: string) {
-  await supabaseAdmin.storage.from(BUCKET).remove([path]);
+  const { error } = await supabaseAdmin.storage.from(BUCKET).remove([path]);
+  if (error) throw new Error(`Failed to remove photo: ${error.message}`);
 }
 
 export function photoPathFromUrl(url?: string | null): string | null {

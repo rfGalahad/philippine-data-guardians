@@ -13,6 +13,7 @@ import Review from '../components/form/ReviewDetails';
 
 import { useRegisterAndCheckout } from '../hooks/useRegisterAndCheckout';
 import { RenewMembershipDialog } from '../components/RenewMembershipDialog';
+import { VerifyEmailDialog } from '../components/VerifyEmailDialog';
 
 // ---------------------------------------------------------------------------
 // CONSTANTS
@@ -35,12 +36,16 @@ export const RegistrationPage = () => {
 
   const form = useRegistrationForm();
   
-  const { 
+  const {
     checkout, 
     loading, 
-    renewPrompt, 
+    step, 
+    expiresAt, 
+    otpError,
     confirmRenewal, 
-    cancelRenewal 
+    verifyOtp, 
+    resendOtp, 
+    cancelRenewal,
   } = useRegisterAndCheckout(form);
 
   const { 
@@ -77,10 +82,20 @@ export const RegistrationPage = () => {
         </div>
       </div>
 
-      {renewPrompt && (
+      {step === "renew" && (
         <RenewMembershipDialog
-          expiresAt={renewPrompt.expiresAt}
+          expiresAt={expiresAt}
           onConfirm={confirmRenewal}
+          onCancel={cancelRenewal}
+        />
+      )}
+
+      {step === "otp" && (
+        <VerifyEmailDialog
+          email={form.state.values.emailAddress}
+          error={otpError}
+          onVerify={verifyOtp}
+          onResend={resendOtp}
           onCancel={cancelRenewal}
         />
       )}

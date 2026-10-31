@@ -27,10 +27,12 @@ export interface MemberPayload {
   p_payment_status: PaymentStatus;
 }
 
-export interface RegisterMemberResult {
-  member_id: string;
+export interface MembershipRegistrationResult {
   subscriber_id: string;
+  member_id: string;
   subscription_id: string;
+  payment_id: string;
+  amount: number | string;
   is_existing_subscriber: boolean;
 }
 
@@ -70,12 +72,24 @@ export async function checkEmailMembership(email: string): Promise<EmailMembersh
   return data as EmailMembershipStatus;
 }
 
-// REGISTER MEMBER
-export async function registerMember(payload: MemberPayload): Promise<RegisterMemberResult> {
+function parseResult(data: unknown, fn: string): MembershipRegistrationResult {
+  const r = data as Partial<MembershipRegistrationResult> | null;
+  if (!r?.subscriber_id || !r?.member_id || !r?.subscription_id || !r?.payment_id) {
+    throw new Error(`${fn} returned an incomplete result`);
+  }
+  return r as MembershipRegistrationResult;
+}
+
+export async function registerMember(payload: MemberPayload) {
   const { data, error } = await supabaseAdmin.rpc("register_member", payload);
   if (error) throw error;
-  if (!data?.subscriber_id) throw new Error("subscriber_id not returned");
-  return data as RegisterMemberResult;
+  return parseResult(data, "register_member");
+}
+
+export async function renewMembership(payload: MemberPayload) {
+  const { data, error } = await supabaseAdmin.rpc("renew_membership", payload);
+  if (error) throw error;
+  return parseResult(data, "renew_membership");
 }
 
 // DELETE MEMBER
