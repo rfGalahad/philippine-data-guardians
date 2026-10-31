@@ -39,8 +39,8 @@ export async function removePhoto(path: string) {
   if (error) throw new Error(`Failed to remove photo: ${error.message}`);
 }
 
-export function photoPathFromUrl(url?: string | null): string | null {
-  const marker = `/${BUCKET}/`;
-  const i = url?.indexOf(marker) ?? -1;
-  return i === -1 ? null : url!.slice(i + marker.length).split("?")[0];
+export function photoPathFromUrl(url: string): string | null {
+  const marker = "/member-photos/";
+  const i = url.indexOf(marker);
+  return i === -1 ? null : decodeURIComponent(url.slice(i + marker.length).split("?")[0]);
 }

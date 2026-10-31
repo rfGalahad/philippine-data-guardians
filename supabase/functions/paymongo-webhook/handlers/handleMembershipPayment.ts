@@ -1,6 +1,8 @@
 import { confirmMembershipPayment } from "../../_shared/members.ts";
 import { getMemberDetails } from "../../_shared/subscribers.ts";
 import { removePhoto, photoPathFromUrl } from "../../_shared/photos.ts";
+import { issueMemberId } from "../../_shared/issueMemberId.ts";
+import { buildFullAddress } from "../../_shared/address.ts";
 
 import { createNotification } from "../services/notificationService.ts";
 import sendEmail from "../email/sendEmail.ts";
@@ -59,14 +61,28 @@ export async function handleMembershipPayment(referenceNumber: string, planName:
     if (!member?.email) {
       console.error("[webhook] email_skipped_no_member_or_email", { subscriberId });
     } else {
+      let idPdf: IssuedId | null = null;
+      try {
+        idPdf = await issueMemberId({
+          memberId,
+          name: member.name,
+          plan: member.membershipType,
+          fullAddress: buildFullAddress(member.address), // port your getFullAddress util
+          photoPath: member.photoPath,
+        });
+      } catch (e) {
+        console.error("[webhook] id_generation_failed", { memberId, e });
+      }
+
       await sendEmail({
-        name: member.name,
-        email: member.email,
-        memberId,
         subscriptionType: "membership",
+        email: member.email,
+        name: member.name,
+        memberId,
         planName,
-        memberShipType: member.membershipType,
-        memberSince: member.memberSince
+        membershipType: member.membershipType, // was memberShipType
+        memberSince: member.memberSince ?? new Date(),
+        idPdf,
       });
     }
   } catch (e) {

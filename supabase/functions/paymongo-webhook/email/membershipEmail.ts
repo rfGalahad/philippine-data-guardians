@@ -9,11 +9,13 @@ function escapeHtml(value: string): string {
 
 export function membershipEmail(
   memberName: string,
-  memberEmail: string,
+  memberEmail: string, 
   memberId?: string,
   logoUrl?: string,
   membershipType: string = "Member",
   memberSince: Date = new Date(),
+  idDownloadUrl: string | null = null,
+  idAttached = false
 ): string {
   
   const name = memberName ? escapeHtml(memberName) : "";
@@ -38,6 +40,28 @@ export function membershipEmail(
     detailRow("Membership type", type),
     detailRow("Member since", since),
   ].join("");
+
+  const idBlock = idAttached
+    ? `<p style="font-size:14px;color:#334155;line-height:1.7;margin:0 0 16px;">
+         Your digital Membership ID is attached to this email as a PDF. Please save it for your records.
+       </p>
+       ${
+         idDownloadUrl
+           ? `<table cellpadding="0" cellspacing="0" style="margin:0 0 8px;">
+                <tr>
+                  <td style="background:#0a3d6b;border-radius:6px;">
+                    <a href="${escapeHtml(idDownloadUrl)}" style="display:inline-block;padding:12px 20px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">
+                      Download your ID
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="font-size:12px;color:#94a3b8;margin:0;">This link expires in 7 days.</p>`
+           : ""
+       }`
+    : `<p style="font-size:14px;color:#334155;line-height:1.7;margin:0;">
+         We're preparing your digital Membership ID and will send it to you shortly.
+       </p>`;
 
   return `
 <!DOCTYPE html>
@@ -108,6 +132,13 @@ export function membershipEmail(
                   </td>
                 </tr>
               </table>
+            </td>
+          </tr>
+
+          <!-- Digital ID -->
+          <tr>
+            <td style="padding:0 32px 28px;">
+              ${idBlock}
             </td>
           </tr>
 
