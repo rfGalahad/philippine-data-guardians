@@ -6,6 +6,7 @@ import ConfirmDialog from "@/components/feedback/ConfirmDialog";
 // ---------------------------------------------------------------------------
 
 const RESEND_SECONDS = 30;
+const OTP_LENGTH = 8;
 
 // ---------------------------------------------------------------------------
 // TYPES
@@ -41,7 +42,7 @@ export const VerifyEmailDialog = ({
   }, [cooldown]);
 
   const handleVerify = async () => {
-    if (code.length !== 6 || busy) return;
+    if (code.length !== OTP_LENGTH || busy) return;
     setBusy(true);
     try {
       await onVerify(code);
@@ -64,27 +65,27 @@ export const VerifyEmailDialog = ({
       }}
       onConfirm={handleVerify}
       title="Verify your email"
-      description={`We sent a 6-digit code to ${email}. Enter it below to continue renewing.`}
+      description={`We sent a ${OTP_LENGTH}-digit code to ${email}. Enter it below to continue renewing.`}
       confirmLabel="Verify & Renew"
       loadingLabel="Verifying…"
       loading={busy}
-      confirmDisabled={code.length !== 6}
+      confirmDisabled={code.length !== OTP_LENGTH}
       variant="primary"
     >
       <input
         data-autofocus
         inputMode="numeric"
         autoComplete="one-time-code"
-        maxLength={6}
+        maxLength={OTP_LENGTH}
         value={code}
         disabled={busy}
-        placeholder="000000"
-        aria-label="6-digit verification code"
+        placeholder={"0".repeat(OTP_LENGTH)}
+        aria-label={`${OTP_LENGTH}-digit verification code`}
         onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
         onKeyDown={(e) => {
           if (e.key === "Enter") handleVerify();
         }}
-        className="mt-4 w-full rounded-md border border-field-border px-3 py-2 text-center font-body text-lg tracking-[0.5em] text-text-primary outline-none focus:border-text-primary disabled:opacity-60"
+        className="mt-4 w-full rounded-md border border-field-border px-3 py-2 text-center font-body text-lg tracking-[0.3em] text-text-primary outline-none focus:border-text-primary disabled:opacity-60"
       />
 
       {error && (
