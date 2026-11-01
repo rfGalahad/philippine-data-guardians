@@ -58,6 +58,8 @@ export async function handleMembershipPayment(referenceNumber: string, planName:
   try {
     const member = await getMemberDetails(subscriberId);
 
+    console.log("MEMBER DETAILS:", member);
+
     if (!member?.email) {
       console.error("[webhook] email_skipped_no_member_or_email", { subscriberId });
     } else {

@@ -95,7 +95,7 @@ export async function createCheckout(input: CheckoutInput): Promise<{ url: strin
             name: description, 
             quantity: 1 
           }],
-          payment_method_types: ["card", "gcash", "grab_pay"],
+          payment_method_types: ["qrph"],
           success_url: `${appOrigin}/success/${route}?ref=${referenceNumber}`,
           cancel_url: cancelUrl,
         },

@@ -16,17 +16,18 @@ export interface IssuedId {
 // CONSTANTS
 // --------------------------------------------------------------------------------------------//
 
+const TEMPLATE_URL = "https://res.cloudinary.com/diuruuyas/image/upload/v1793499169/membership-id-template_rkt0fb.png"; // your uploaded template
 const BUCKET = "member-ids"; // private bucket
 const LINK_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
-const LOGO_URL = "https://res.cloudinary.com/diuruuyas/image/upload/v1779172364/logo-pdg-1_gojiba.png";
-let logoCache: Uint8Array | null = null;
 
-async function getLogo(): Promise<Uint8Array> {
-  if (logoCache) return logoCache;
-  const res = await fetch(LOGO_URL);
-  if (!res.ok) throw new Error(`Logo fetch failed (${res.status})`);
-  logoCache = new Uint8Array(await res.arrayBuffer());
-  return logoCache;
+let templateCache: Uint8Array | null = null;
+
+async function getTemplate(): Promise<Uint8Array> {
+  if (templateCache) return templateCache;
+  const res = await fetch(TEMPLATE_URL);
+  if (!res.ok) throw new Error(`Template fetch failed (${res.status})`);
+  templateCache = new Uint8Array(await res.arrayBuffer());
+  return templateCache;
 }
 
 // --------------------------------------------------------------------------------------------//
@@ -42,21 +43,24 @@ export async function issueMemberId(member: {
 }): Promise<IssuedId> {
   const path = `${member.memberId}.pdf`;
 
-  // Download assets with the service role (works even if buckets are private)
-  const logoBytes = await getLogo();
-
   let photoBytes: Uint8Array | null = null;
   if (member.photoPath) {
     const { data, error } = await supabaseAdmin.storage.from("member-photos").download(member.photoPath);
-    if (!error && data) photoBytes = new Uint8Array(await data.arrayBuffer());
+    if (error) console.error("[issueId] photo_download_failed", { path: member.photoPath, error });
+    else photoBytes = new Uint8Array(await data.arrayBuffer());
+  } else {
+    console.warn("[issueId] no_photo_path", { memberId: member.memberId });
   }
+
+  const templateBytes = await getTemplate();
 
   const pdfBytes = await generateIdPdf({
     memberId: member.memberId,
     fullName: member.name,
     plan: member.plan,
     fullAddress: member.fullAddress,
-    logoBytes,
+    qrValue: member.memberId, // or a verification URL, see below
+    templateBytes,
     photoBytes,
   });
 

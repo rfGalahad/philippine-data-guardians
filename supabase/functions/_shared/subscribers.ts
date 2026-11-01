@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "./supabaseAdmin.ts";
+import { photoPathFromUrl } from "./photos.ts"
 
 // ---------------------------------------------------------------------------
 // TYPES
@@ -18,6 +19,11 @@ export interface MemberDetails {
 // ---------------------------------------------------------------------------
 // QUERIES
 // ---------------------------------------------------------------------------
+
+function first<T>(rel: T | T[] | null | undefined): T | null {
+  if (Array.isArray(rel)) return rel[0] ?? null;
+  return rel ?? null;
+}
 
 export async function getMemberDetails(subscriberId: string): Promise<MemberDetails | null> {
   const { data, error } = await supabaseAdmin
@@ -39,11 +45,9 @@ export async function getMemberDetails(subscriberId: string): Promise<MemberDeta
   if (error) throw error;
   if (!data) return null;
 
-  const subscription = data.subscriptions?.[0];
-  const member = data.members?.[0];
-
-  // PostgREST returns an object for one-to-one relations and an array for one-to-many
-  const rawAddress = Array.isArray(member?.address) ? member.address[0] : member?.address;
+  const subscription = first(data.subscriptions);
+  const member = first(data.members);
+  const rawAddress = first(member?.address);
 
   const address: AddressParts | null = rawAddress
     ? {

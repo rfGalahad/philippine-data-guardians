@@ -41,6 +41,50 @@ export function membershipEmail(
     detailRow("Member since", since),
   ].join("");
 
+  const certificateBlock = `
+        <!-- Free certificates -->
+        <tr>
+          <td style="padding:0 32px 28px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:6px;">
+              <tr>
+                <td style="padding:18px 20px;">
+                  <p style="font-size:15px;font-weight:700;color:#0a2744;margin:0 0 8px;">
+                    Free certificates for new members
+                  </p>
+                  <p style="font-size:14px;color:#334155;line-height:1.7;margin:0 0 8px;">
+                    As a new member, you get free access to:
+                  </p>
+                  <ul style="font-size:14px;color:#334155;line-height:1.7;margin:0 0 14px;padding-left:20px;">
+                    <li>Certified Cybersecurity Associate (CCA)</li>
+                    <li>Certified Security Operations Professional (CSSP)</li>
+                  </ul>
+
+                  <p style="font-size:12px;color:#64748b;margin:0 0 4px;text-transform:uppercase;letter-spacing:0.5px;">
+                    Voucher code
+                  </p>
+                  <table cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
+                    <tr>
+                      <td style="background:#ffffff;border:1px dashed #f59e0b;border-radius:4px;padding:8px 14px;font-family:'Courier New',Courier,monospace;font-size:16px;font-weight:700;color:#0a2744;letter-spacing:1px;">
+                        PDG-MEMBER2026
+                      </td>
+                    </tr>
+                  </table>
+
+                  <table cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="background:#0a3d6b;border-radius:6px;">
+                        <a href="https://www.cyber404.net" style="display:inline-block;padding:12px 20px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">
+                          Claim at cyber404.net
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>`;
+
   const idBlock = idAttached
     ? `<p style="font-size:14px;color:#334155;line-height:1.7;margin:0 0 16px;">
          Your digital Membership ID is attached to this email as a PDF. Please save it for your records.
@@ -141,6 +185,8 @@ export function membershipEmail(
               ${idBlock}
             </td>
           </tr>
+
+          ${certificateBlock}
 
           <!-- Support + Facebook -->
           <tr>
