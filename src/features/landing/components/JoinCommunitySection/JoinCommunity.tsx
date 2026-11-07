@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { containerVariants, itemVariants } from '@/lib/motion';
 import { MembershipTypes } from './MembershipTypes';
 
-import MembershipIDCard from '@/assets/membership-card.png';
+import MembershipIDCard from '@/assets/membership-card.webp';
 import { Smartphone } from 'lucide-react';
 
 

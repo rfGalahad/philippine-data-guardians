@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import DashboardPreviewImage from '@/assets/data-breach-dashboard-preview.png';
+import DashboardPreviewImage from '@/assets/data-breach-dashboard-preview.webp';
 
 export const DataBreachSection = () => {
   return (

@@ -1,4 +1,4 @@
-import pdgBackground from '@/assets/pdg-background.png';
+import pdgBackground from '@/assets/pdg-background.webp';
 import BrandLogo from '@/components/common/BrandLogo';
 import Button from '@/components/ui/Button';
 

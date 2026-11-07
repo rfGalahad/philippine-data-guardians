@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Building2, Check, School, Users, Briefcase } from "lucide-react";
-import PDGLogo from '@/assets/logo-pdg-1.png';
 import { useLandingNavigation } from "../../hooks/useLandingNavigation";
+
+import PDGLogo from '@/assets/logo-pdg-1.webp';
 
 //-----------------------------------------------------------
 // INTERFACE / TYPES

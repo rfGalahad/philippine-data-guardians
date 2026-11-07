@@ -1,4 +1,4 @@
-import PDGLogo from '@/assets/logo-pdg-1.png'
+import PDGLogo from '@/assets/logo-pdg-1.webp'
 
 //-----------------------------------------------------------
 // CONSTANTS

@@ -10,14 +10,14 @@ import {
   ShieldAlert,
 } from "lucide-react";
 
-import auditAssessment from "@/assets/services/audit-assessment.png";
-import breachResponse from "@/assets/services/breach-response.png";
-import complianceConsulting from "@/assets/services/compliance-consulting.png";
-import piaService from "@/assets/services/pia-service.png";
-import policyDevelopment from "@/assets/services/policy-development.png";
-import privacyTraining from "@/assets/services/privacy-training.png";
-import researchAdvocacy from "@/assets/services/research-advocacy.png";
-import techSolutions from "@/assets/services/tech-solutions.png";
+import auditAssessment from "@/assets/services/audit-assessment.webp";
+import breachResponse from "@/assets/services/breach-response.webp";
+import complianceConsulting from "@/assets/services/compliance-consulting.webp";
+import piaService from "@/assets/services/pia-service.webp";
+import policyDevelopment from "@/assets/services/policy-development.webp";
+import privacyTraining from "@/assets/services/privacy-training.webp";
+import researchAdvocacy from "@/assets/services/research-advocacy.webp";
+import techSolutions from "@/assets/services/tech-solutions.webp";
 
 import ServiceCard from "./ServiceCard";
 

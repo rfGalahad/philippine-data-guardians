@@ -2,11 +2,11 @@ import { motion } from 'framer-motion';
 import { containerVariants, itemVariants } from '@/lib/motion';
 
 import partnerOne from '@/assets/partners/partner_cyber404.webp';
-import partnerTwo from '@/assets/partners/partner_iotconferenceph.png';
-import partnerThree from '@/assets/partners/partner_redwizard.png';
-import partnerFour from '@/assets/partners/partner_numoa.png';
-import partnerFive from '@/assets/partners/partner_olivarezcollege.png';
-import partnerSix from '@/assets/partners/partner_nordvpn.png';
+import partnerTwo from '@/assets/partners/partner_iotconferenceph.webp';
+import partnerThree from '@/assets/partners/partner_redwizard.webp';
+import partnerFour from '@/assets/partners/partner_numoa.webp';
+import partnerFive from '@/assets/partners/partner_olivarezcollege.webp';
+import partnerSix from '@/assets/partners/partner_nordvpn.webp';
 
 type Partner = {
   name: string;

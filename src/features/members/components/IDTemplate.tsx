@@ -1,6 +1,6 @@
 import QRCode from 'react-qr-code';
 
-import Logo from '@/assets/logo-pdg-1.png';
+import Logo from '@/assets/logo-pdg-1.webp';
 
 import { getFullAddress, getInitials } from '@/utils/string';
 import type { PlanName } from '@/lib/supabase/types';

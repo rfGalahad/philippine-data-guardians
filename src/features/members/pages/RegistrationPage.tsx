@@ -1,4 +1,4 @@
-import BackgroundImage from '@/assets/pdg-background.png';
+import BackgroundImage from '@/assets/pdg-background.webp';
 
 import RegistrationStepper from '../components/form/RegistrationStepper';
 import PrivacyPolicyNotice from '../components/form/PrivacyPolicyNotice';

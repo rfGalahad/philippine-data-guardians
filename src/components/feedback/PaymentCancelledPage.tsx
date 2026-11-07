@@ -1,7 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, RotateCcw, XCircle } from 'lucide-react';
 
-import BackgroundImage from '@/assets/pdg-background.png';
+import BackgroundImage from '@/assets/pdg-background.webp';
 import Button from '../ui/Button';
 
 //-----------------------------------------------------------

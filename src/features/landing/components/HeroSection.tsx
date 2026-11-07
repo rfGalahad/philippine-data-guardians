@@ -3,7 +3,7 @@ import { containerVariants, itemVariants } from '@/lib/motion';
 
 import { useLandingNavigation } from '../hooks/useLandingNavigation';
 
-import heroImage from '@/assets/hero-background.png';
+import heroImage from '@/assets/hero-background.webp';
 import Button from '@/components/ui/Button';
 
 

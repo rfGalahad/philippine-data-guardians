@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
-import pdgBackground from '@/assets/pdg-background.png';
+import pdgBackground from '@/assets/pdg-background.webp';
 
 export const EmptyPage = () => {
   const navigate = useNavigate();

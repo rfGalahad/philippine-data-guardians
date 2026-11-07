@@ -1,4 +1,4 @@
-import pdgFacebookBanner from '@/assets/pdg-banner.png';
+import pdgFacebookBanner from '@/assets/pdg-banner.webp';
 
 //-----------------------------------------------------------
 // CONSTANTS

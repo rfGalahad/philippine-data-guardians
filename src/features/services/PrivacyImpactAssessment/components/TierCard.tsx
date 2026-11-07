@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Briefcase, Building2, Check, Users } from "lucide-react";
 import { useToast } from "@/components/feedback/Toast";
-import PDGLogo from '@/assets/logo-pdg-1.png';
+import PDGLogo from '@/assets/logo-pdg-1.webp';
 
 //-----------------------------------------------------------
 // INTERFACE / TYPES

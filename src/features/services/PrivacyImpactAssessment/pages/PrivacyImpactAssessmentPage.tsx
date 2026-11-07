@@ -1,4 +1,4 @@
-import PIABackground from "@/assets/services/pia-service.png";
+import PIABackground from "@/assets/services/pia-service.webp";
 
 import HeroSection from "../../components/HeroSection"
 import Footer from "../../components/Footer";

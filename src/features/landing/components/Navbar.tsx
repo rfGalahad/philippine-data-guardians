@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useLandingNavigation } from "../hooks/useLandingNavigation";
-import pdgLogo from '@/assets/logo-pdg-1.png';
+import pdgLogo from '@/assets/logo-pdg-1.webp';
 
 //-----------------------------------------------------------
 // CONSTANTS

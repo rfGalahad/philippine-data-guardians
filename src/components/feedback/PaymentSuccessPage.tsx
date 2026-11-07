@@ -1,7 +1,7 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
-import BackgroundImage from '@/assets/pdg-background.png';
+import BackgroundImage from '@/assets/pdg-background.webp';
 import Button from '../ui/Button';
 import { useVerifyPayment } from '@/hooks/useVerifyPayment';
 
