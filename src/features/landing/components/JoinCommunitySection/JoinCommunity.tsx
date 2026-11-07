@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
 import { containerVariants, itemVariants } from '@/lib/motion';
 import { MembershipTypes } from './MembershipTypes';
+
 import MembershipIDCard from '@/assets/membership-card.png';
+import { Smartphone } from 'lucide-react';
+
 
 export const JoinCommunitySection = () => {
   return (
@@ -56,13 +59,21 @@ export const JoinCommunitySection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-[10px] transition-colors duration-300 hover:border-white/20 md:col-start-3 md:row-start-1"
+          className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-[10px] transition-colors duration-300 hover:border-white/20 md:col-start-3 md:row-start-1"
         >
-          <img
-            src={MembershipIDCard}
-            alt="Philippine Data Guardians membership ID card"
-            className="block w-full rounded-lg shadow-[0px_4px_12px_rgba(0,0,0,0.4)]"
-          />
+          <div className="relative w-full">
+            <img
+              src={MembershipIDCard}
+              alt="Philippine Data Guardians digital membership ID card"
+              className="block w-full rounded-lg shadow-[0px_4px_12px_rgba(0,0,0,0.4)]"
+            />
+          </div>
+
+          {/* Caption */}
+          <p className="flex items-center gap-1.5 text-center text-[11px] text-white/50">
+            <Smartphone className="h-3 w-3" aria-hidden="true" />
+            Digital membership ID. No physical card is issued.
+          </p>
         </motion.div>
 
         {/* MEMBERSHIP TYPES */}

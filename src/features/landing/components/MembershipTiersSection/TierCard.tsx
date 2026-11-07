@@ -38,7 +38,8 @@ const getInitialBenefits = (tier: string) => {
     "Access to free training sessions",
     "Free certificates",
     "Announcements on free events",
-    "PDG T-shirt and Membership ID",
+    "Digital Membership ID",
+    "Membership Voucher Code for Certified Cybersecurity Associate (CCA) and Certified Security Operations Professional (CSOP)"
   ];
   const professionalBenefits = [
     "All Student/Academic benefits",

@@ -8,6 +8,7 @@ import Services from "../components/ServicesSection";
 import DataBreachSection from "../components/DataBreachSection";
 import ContactSection from "../components/ContactSection";
 import Footer from "../components/Footer";
+import PartnershipSection from "../components/PartnershipSection";
 
 
 function LandingPage () {
@@ -21,6 +22,7 @@ function LandingPage () {
       <MembershipTiers/>
       <Services/>
       <DataBreachSection/>
+      <PartnershipSection/>
       <ContactSection/>
       <Footer/>
       <ScrollToTopButton/>
